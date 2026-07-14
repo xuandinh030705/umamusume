@@ -1,0 +1,399 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  GUEST
+  MEMBER
+  PREMIUM
+  MODERATOR
+  ADMIN
+
+  @@map("Role")
+}
+
+enum DeviceType {
+  PHONE
+  TABLET
+  PC
+
+  @@map("DeviceType")
+}
+
+enum WallpaperFormat {
+  IMAGE
+  GIF
+  VIDEO
+
+  @@map("WallpaperFormat")
+}
+
+enum WallpaperStatus {
+  PENDING
+  PUBLISHED
+  HIDDEN
+
+  @@map("WallpaperStatus")
+}
+
+enum CharacterRequestStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  REJECTED
+
+  @@map("CharacterRequestStatus")
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+
+  @@map("ReportStatus")
+}
+
+enum NotificationType {
+  WALLPAPER_NEW
+  REQUEST_DONE
+  COMMENT_REPLY
+  SYSTEM
+
+  @@map("NotificationType")
+}
+
+// ─── NextAuth Models ─────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid()) @map("_id")
+  userId            String  @map("userId")
+  type              String  @map("type")
+  provider          String  @map("provider")
+  providerAccountId String  @map("providerAccountId")
+  refresh_token     String? @map("refresh_token")
+  access_token      String? @map("access_token")
+  expires_at        Int?    @map("expires_at")
+  token_type        String? @map("token_type")
+  scope             String? @map("scope")
+  id_token          String? @map("id_token")
+  session_state     String? @map("session_state")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("Account")
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique @map("sessionToken")
+  userId       String   @map("userId")
+  expires      DateTime @map("expires")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("Session")
+}
+
+model VerificationToken {
+  identifier String   @map("identifier")
+  token      String   @unique @map("token")
+  expires    DateTime @map("expires")
+
+  @@unique([identifier, token])
+  @@map("VerificationToken")
+}
+
+// ─── Core Models ─────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid()) @map("_id")
+  name          String?   @map("name")
+  email         String?   @unique @map("email")
+  emailVerified DateTime? @map("emailVerified")
+  image         String?   @map("image")
+  password      String?   @map("password")
+  role          Role      @default(MEMBER) @map("role")
+  isPremium     Boolean   @default(false) @map("isPremium")
+  premiumExpiry DateTime? @map("premiumExpiry")
+  bio           String?   @map("bio")
+  createdAt     DateTime  @default(now()) @map("createdAt")
+  updatedAt     DateTime  @updatedAt @map("updatedAt")
+
+  accounts          Account[]
+  sessions          Session[]
+  wallpapers        Wallpaper[]
+  comments          Comment[]
+  likes             Like[]
+  collections       Collection[]
+  characterRequests CharacterRequest[]
+  upvotes           Upvote[]
+  downloads         Download[]
+  follows           Follow[]
+  reports           Report[]
+  notifications     Notification[]
+
+  @@map("User")
+}
+
+model Character {
+  id          String   @id @default(cuid()) @map("_id")
+  name        String   @map("name")
+  nameJp      String?  @map("nameJp")
+  bloodline   String?  @map("bloodline")
+  description String?  @map("description")
+  avatarUrl   String?  @map("avatarUrl")
+  coverUrl    String?  @map("coverUrl")
+  slug        String   @unique @map("slug")
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+
+  wallpapers Wallpaper[]
+  follows    Follow[]
+
+  @@map("Character")
+}
+
+model Tag {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String   @unique @map("name")
+  slug      String   @unique @map("slug")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  wallpaperTags WallpaperTag[]
+
+  @@map("Tag")
+}
+
+// ─── Wallpaper ───────────────────────────────────────────────────────────────
+
+model Wallpaper {
+  id              String          @id @default(cuid()) @map("_id")
+  title           String          @map("title")
+  description     String?         @map("description")
+  fileUrl         String          @map("fileUrl")
+  thumbnailUrl    String?         @map("thumbnailUrl")
+  previewUrl      String?         @map("previewUrl")
+  resolution      String?         @map("resolution")
+  deviceType      DeviceType      @map("deviceType")
+  format          WallpaperFormat @map("format")
+  wallpaperStatus WallpaperStatus @default(PUBLISHED) @map("wallpaperStatus")
+  downloadCount   Int             @default(0) @map("downloadCount")
+  viewCount       Int             @default(0) @map("viewCount")
+  isPremium       Boolean         @default(false) @map("isPremium")
+  uploaderId      String?         @map("uploaderId")
+  characterId     String?         @map("characterId")
+  createdAt       DateTime        @default(now()) @map("createdAt")
+  updatedAt       DateTime        @updatedAt @map("updatedAt")
+
+  character       Character?       @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  uploader        User?            @relation(fields: [uploaderId], references: [id], onDelete: SetNull)
+  wallpaperTags   WallpaperTag[]
+  comments        Comment[]
+  likes           Like[]
+  collectionItems CollectionItem[]
+  downloads       Download[]
+
+  @@index([uploaderId])
+  @@index([characterId])
+  @@index([wallpaperStatus])
+  @@map("Wallpaper")
+}
+
+model WallpaperTag {
+  id          String @id @default(cuid()) @map("_id")
+  wallpaperId String @map("wallpaperId")
+  tagId       String @map("tagId")
+
+  wallpaper Wallpaper @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([wallpaperId, tagId])
+  @@index([wallpaperId])
+  @@index([tagId])
+  @@map("WallpaperTag")
+}
+
+// ─── Comments & Likes ────────────────────────────────────────────────────────
+
+model Comment {
+  id              String   @id @default(cuid()) @map("_id")
+  content         String   @map("content")
+  createdAt       DateTime @default(now()) @map("createdAt")
+  updatedAt       DateTime @updatedAt @map("updatedAt")
+  userId          String   @map("userId")
+  wallpaperId     String   @map("wallpaperId")
+  parentCommentId String?  @map("parentCommentId")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallpaper     Wallpaper @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+  parentComment Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies       Comment[] @relation("CommentReplies")
+
+  @@index([userId])
+  @@index([wallpaperId])
+  @@index([parentCommentId])
+  @@map("Comment")
+}
+
+model Like {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String   @map("userId")
+  wallpaperId String   @map("wallpaperId")
+  createdAt   DateTime @default(now()) @map("createdAt")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallpaper Wallpaper @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wallpaperId])
+  @@index([userId])
+  @@index([wallpaperId])
+  @@map("Like")
+}
+
+// ─── Collections ─────────────────────────────────────────────────────────────
+
+model Collection {
+  id          String   @id @default(cuid()) @map("_id")
+  name        String   @map("name")
+  description String?  @map("description")
+  isPublic    Boolean  @default(false) @map("isPublic")
+  userId      String   @map("userId")
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CollectionItem[]
+
+  @@index([userId])
+  @@map("Collection")
+}
+
+model CollectionItem {
+  id           String   @id @default(cuid()) @map("_id")
+  collectionId String   @map("collectionId")
+  wallpaperId  String   @map("wallpaperId")
+  createdAt    DateTime @default(now()) @map("createdAt")
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  wallpaper  Wallpaper  @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, wallpaperId])
+  @@index([collectionId])
+  @@index([wallpaperId])
+  @@map("CollectionItem")
+}
+
+// ─── Character Requests & Upvotes ────────────────────────────────────────────
+
+model CharacterRequest {
+  id            String                 @id @default(cuid()) @map("_id")
+  characterName String                 @map("characterName")
+  note          String?                @map("note")
+  upvoteCount   Int                    @default(0) @map("upvoteCount")
+  status        CharacterRequestStatus @default(PENDING) @map("status")
+  userId        String                 @map("userId")
+  createdAt     DateTime               @default(now()) @map("createdAt")
+  updatedAt     DateTime               @updatedAt @map("updatedAt")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  upvotes Upvote[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("CharacterRequest")
+}
+
+model Upvote {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @map("userId")
+  requestId String   @map("requestId")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  request CharacterRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, requestId])
+  @@index([userId])
+  @@index([requestId])
+  @@map("Upvote")
+}
+
+// ─── Downloads ───────────────────────────────────────────────────────────────
+
+model Download {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String   @map("userId")
+  wallpaperId String   @map("wallpaperId")
+  createdAt   DateTime @default(now()) @map("createdAt")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallpaper Wallpaper @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([wallpaperId])
+  @@map("Download")
+}
+
+// ─── Follows ─────────────────────────────────────────────────────────────────
+
+model Follow {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String   @map("userId")
+  characterId String   @map("characterId")
+  createdAt   DateTime @default(now()) @map("createdAt")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, characterId])
+  @@index([userId])
+  @@index([characterId])
+  @@map("Follow")
+}
+
+// ─── Reports ─────────────────────────────────────────────────────────────────
+
+model Report {
+  id         String       @id @default(cuid()) @map("_id")
+  reason     String       @map("reason")
+  targetType String       @map("targetType")
+  targetId   String       @map("targetId")
+  status     ReportStatus @default(PENDING) @map("status")
+  userId     String       @map("userId")
+  createdAt  DateTime     @default(now()) @map("createdAt")
+  updatedAt  DateTime     @updatedAt @map("updatedAt")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("Report")
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid()) @map("_id")
+  type      NotificationType @map("type")
+  content   String           @map("content")
+  isRead    Boolean          @default(false) @map("isRead")
+  userId    String           @map("userId")
+  link      String?          @map("link")
+  createdAt DateTime         @default(now()) @map("createdAt")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("Notification")
+}
