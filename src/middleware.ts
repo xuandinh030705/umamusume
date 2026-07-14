@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
-// In-memory rate limit store (resets on server restart)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 function checkApiRateLimit(
@@ -26,19 +24,24 @@ function checkApiRateLimit(
   return { allowed: true, remaining: maxRequests - record.count };
 }
 
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return "unknown";
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip rate limiting for static files and development
   if (pathname.startsWith("/_next") || pathname.startsWith("/static")) {
     return NextResponse.next();
   }
 
   const ip = getClientIp(request);
 
-  // Rate limit API routes
   if (pathname.startsWith("/api/")) {
-    // Auth routes: 10 requests per 15 minutes
     if (pathname.startsWith("/api/auth/")) {
       const { allowed } = checkApiRateLimit(`auth:${ip}`, 15 * 60 * 1000, 10);
       if (!allowed) {
@@ -49,7 +52,6 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // Upload routes: 10 requests per minute
     if (pathname.startsWith("/api/upload")) {
       const { allowed } = checkApiRateLimit(`upload:${ip}`, 60 * 1000, 10);
       if (!allowed) {
@@ -60,7 +62,6 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // Download routes: 30 requests per minute
     if (pathname.includes("/download")) {
       const { allowed } = checkApiRateLimit(`download:${ip}`, 60 * 1000, 30);
       if (!allowed) {
@@ -71,7 +72,6 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // Comment routes: 20 requests per minute
     if (pathname.includes("/comments")) {
       const { allowed } = checkApiRateLimit(`comment:${ip}`, 60 * 1000, 20);
       if (!allowed) {
@@ -82,7 +82,6 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // General API: 60 requests per minute
     const { allowed } = checkApiRateLimit(`api:${ip}`, 60 * 1000, 60);
     if (!allowed) {
       return new NextResponse(
@@ -92,7 +91,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Protected page routes
   const protectedRoutes = ["/profile", "/collections"];
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
