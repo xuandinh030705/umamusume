@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
 import { Search, Menu, Heart, Bell, ChevronDown, LogOut, Settings, User, Bookmark } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
@@ -18,28 +19,24 @@ const navLinks = [
 const userMenuItems = [
   { href: "/profile", label: "Profile", icon: User },
   { href: "/collections", label: "Collections", icon: Bookmark },
-  { href: "/settings", label: "Settings", icon: Settings },
 ]
 
-interface UserData {
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  role?: string
-}
-
 interface NavbarProps {
-  user?: UserData | null
   onSearch?: (query: string) => void
 }
 
-function Navbar({ user, onSearch }: NavbarProps) {
+function Navbar({ onSearch }: NavbarProps) {
+  const { data: session } = useSession()
+  const user = session?.user
   const pathname = usePathname()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
-  const isAdmin = user?.role === "ADMIN"
+  const userRole = (user as { role?: string })?.role
+  const userId = (user as { id?: string })?.id
+  const isAdmin = userRole === "ADMIN"
+  const isMod = userRole === "MODERATOR" || isAdmin
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -93,7 +90,7 @@ function Navbar({ user, onSearch }: NavbarProps) {
           <Search className="h-5 w-5" />
         </button>
 
-        <button className=" relative p-2 text-[#999] hover:text-white transition-colors">
+        <button className="relative p-2 text-[#999] hover:text-white transition-colors">
           <Bell className="h-5 w-5" />
           <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-[#D4A843] text-[10px] font-bold text-black flex items-center justify-center">
             3
@@ -144,12 +141,12 @@ function Navbar({ user, onSearch }: NavbarProps) {
                       className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[#D4A843] hover:bg-[#222] transition-colors"
                     >
                       <Settings className="h-4 w-4" />
-                      Admin
+                      Admin Panel
                     </Link>
                   )}
                   <div className="my-1 h-px bg-[#222]" />
                   <button
-                    onClick={() => { setUserMenuOpen(false) }}
+                    onClick={() => { setUserMenuOpen(false); signOut({ callbackUrl: "/" }) }}
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-400 hover:bg-[#222] transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
@@ -160,12 +157,20 @@ function Navbar({ user, onSearch }: NavbarProps) {
             )}
           </div>
         ) : (
-          <Link
-            href="/auth/login"
-            className="rounded-lg bg-[#D4A843] px-4 py-2 text-sm font-medium text-black hover:bg-[#c49c3a] transition-colors"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/auth/login"
+              className="rounded-lg border border-[#333] px-4 py-2 text-sm font-medium text-[#999] hover:text-white hover:border-[#555] transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/auth/register"
+              className="rounded-lg bg-[#D4A843] px-4 py-2 text-sm font-medium text-black hover:bg-[#c49c3a] transition-colors hidden sm:block"
+            >
+              Sign Up
+            </Link>
+          </div>
         )}
       </div>
 
