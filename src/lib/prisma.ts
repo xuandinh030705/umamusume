@@ -8,8 +8,12 @@ function createPrismaClient() {
   const url = process.env.DATABASE_URL;
   if (!url) return null;
   try {
+    const cleanUrl = url
+      .replace(/([?&])sslmode=[^&]*/g, "$1")
+      .replace(/\?&/, "?")
+      .replace(/[?&]$/, "");
     const pool = new Pool({
-      connectionString: url,
+      connectionString: cleanUrl,
       ssl: { rejectUnauthorized: false },
       max: 5,
     });
@@ -21,19 +25,17 @@ function createPrismaClient() {
 }
 
 function getClient(): PrismaClient {
-  if (!globalForPrisma.prisma) {
-    const client = createPrismaClient();
-    if (!client) {
-      throw new Error("DATABASE_URL is not set");
-    }
-    globalForPrisma.prisma = client;
+  if (globalForPrisma.prisma) return globalForPrisma.prisma;
+  const client = createPrismaClient();
+  if (!client) {
+    throw new Error("DATABASE_URL is not set");
   }
-  return globalForPrisma.prisma;
+  globalForPrisma.prisma = client;
+  return client;
 }
 
-// Lazy proxy — only connects when a query is actually made
 export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop, _receiver) {
+  get(_target, prop) {
     if (prop === Symbol.toPrimitive) return () => "[PrismaClient]";
     if (prop === "then") return undefined;
     const client = getClient();
