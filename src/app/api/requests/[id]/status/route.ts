@@ -14,7 +14,10 @@ export async function PATCH(
     const { status } = await request.json();
 
     if (!status) {
-      return NextResponse.json({ success: false, message: "Status is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Status is required" },
+        { status: 400 }
+      );
     }
 
     const validStatuses = ["PENDING", "IN_PROGRESS", "DONE", "REJECTED"];
@@ -25,11 +28,24 @@ export async function PATCH(
       );
     }
 
-    const req = await prisma.characterRequest.update({
+    const request_ = await prisma.characterRequest.update({
       where: { id },
       data: { status },
+      include: { user: { select: { id: true, name: true, image: true } } },
     });
-    return NextResponse.json({ success: true, message: "Status updated", data: req });
+
+    if (status === "DONE") {
+      await prisma.notification.create({
+        data: {
+          type: "REQUEST_DONE",
+          content: `Your request for "${request_.characterName}" has been completed!`,
+          userId: request_.userId,
+          link: "/requests",
+        },
+      });
+    }
+
+    return NextResponse.json({ success: true, data: request_ });
   } catch (error) {
     return NextResponse.json(
       { success: false, message: "Internal server error" },

@@ -44,11 +44,11 @@ function WallpaperCard({ wallpaper, index = 0 }: WallpaperCardProps) {
     >
       <Link
         href={`/wallpapers/${wallpaper.id}`}
-        className="group block relative overflow-hidden rounded-xl bg-[#161616] border border-[#222] hover:border-[#333] transition-all duration-300"
+        className="group block relative rounded-2xl bg-card border border-card-border overflow-hidden transition-all duration-300 hover:bg-card-hover hover:border-border-strong hover-lift"
       >
         <div className="relative aspect-[9/16] overflow-hidden">
           {!imageLoaded && (
-            <div className="absolute inset-0 bg-[#222] animate-pulse" />
+            <div className="absolute inset-0 bg-surface shimmer" />
           )}
           {wallpaper.thumbnailUrl ? (
             <img
@@ -57,19 +57,19 @@ function WallpaperCard({ wallpaper, index = 0 }: WallpaperCardProps) {
               loading="lazy"
               onLoad={() => setImageLoaded(true)}
               className={cn(
-                "h-full w-full object-cover transition-all duration-500 group-hover:scale-110",
+                "h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110",
                 imageLoaded ? "opacity-100" : "opacity-0"
               )}
             />
           ) : (
-            <div className="h-full w-full bg-[#222] flex items-center justify-center">
-              <Image className="h-12 w-12 text-[#444]" />
+            <div className="h-full w-full bg-surface flex items-center justify-center">
+              <Image className="h-12 w-12 text-muted" />
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1 group-hover:translate-y-0">
             <Badge variant={wallpaper.deviceType === "PHONE" ? "default" : "secondary"}>
               {deviceLabel}
             </Badge>
@@ -82,32 +82,32 @@ function WallpaperCard({ wallpaper, index = 0 }: WallpaperCardProps) {
           </div>
 
           {wallpaper.resolution && (
-            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <Badge variant="outline" className="text-xs">
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1 group-hover:translate-y-0">
+              <Badge variant="outline" className="text-xs glass-subtle">
                 {wallpaper.resolution}
               </Badge>
             </div>
           )}
         </div>
 
-        <div className="p-3 space-y-2">
-          <h3 className="text-sm font-medium text-white truncate group-hover:text-[#D4A843] transition-colors">
+        <div className="p-3.5 space-y-2">
+          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors duration-300">
             {wallpaper.title}
           </h3>
           {wallpaper.characterName && (
-            <p className="text-xs text-[#666]">{wallpaper.characterName}</p>
+            <p className="text-xs text-muted-foreground">{wallpaper.characterName}</p>
           )}
-          <div className="flex items-center justify-between text-xs text-[#666]">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 transition-colors duration-200 hover:text-foreground cursor-default">
                 {liked ? (
-                  <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+                  <Heart className="h-3.5 w-3.5 fill-destructive text-destructive" />
                 ) : (
                   <Heart className="h-3.5 w-3.5" />
                 )}
                 {wallpaper.likeCount}
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 transition-colors duration-200 hover:text-foreground cursor-default">
                 <Download className="h-3.5 w-3.5" />
                 {wallpaper.downloadCount}
               </span>

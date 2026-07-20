@@ -27,7 +27,7 @@ const roleColors: Record<string, string> = {
   MEMBER: "text-gray-400",
   PREMIUM: "text-yellow-400",
   MODERATOR: "text-blue-400",
-  ADMIN: "text-[#D4A843]",
+  ADMIN: "text-primary",
 }
 
 export default function AdminUsersPage() {
@@ -81,7 +81,7 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Link>
@@ -98,14 +98,14 @@ export default function AdminUsersPage() {
           <h1 className="text-3xl font-bold">
             Manage <span className="gold-text">Users</span>
           </h1>
-          <p className="text-[#666]">{users.length} users</p>
+          <p className="text-muted-foreground">{users.length} users</p>
         </div>
 
         <div className="space-y-3">
           {users.map((user) => (
-            <Card key={user.id}>
+            <Card key={user.id} className="rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center text-sm font-medium shrink-0">
+                <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-sm font-medium shrink-0">
                   {user.image ? (
                     <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
                   ) : (
@@ -125,18 +125,18 @@ export default function AdminUsersPage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-[#666] truncate">{user.email}</p>
+                  <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                 </div>
-                <div className="hidden sm:block text-xs text-[#666]">
+                <div className="hidden sm:block text-xs text-muted-foreground">
                   {user._count.downloads} downloads
                 </div>
-                <div className="hidden md:block text-xs text-[#666]">
+                <div className="hidden md:block text-xs text-muted-foreground">
                   {formatDate(user.createdAt)}
                 </div>
                 <select
                   value={user.role}
                   onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                  className="h-8 rounded-lg border border-[#333] bg-[#111] px-2 text-sm text-[#e0e0e0]"
+                  className="h-8 rounded-xl border border-border bg-background px-2 text-sm text-foreground"
                 >
                   {roles.map((role) => (
                     <option key={role} value={role}>{role}</option>

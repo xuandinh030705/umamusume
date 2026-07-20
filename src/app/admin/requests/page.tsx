@@ -24,8 +24,8 @@ interface Request {
 const statusConfig: Record<string, { label: string; icon: typeof Clock; color: string }> = {
   PENDING: { label: "Pending", icon: Clock, color: "text-yellow-400" },
   IN_PROGRESS: { label: "In Progress", icon: AlertCircle, color: "text-blue-400" },
-  DONE: { label: "Done", icon: CheckCircle, color: "text-green-400" },
-  REJECTED: { label: "Rejected", icon: XCircle, color: "text-red-400" },
+  DONE: { label: "Done", icon: CheckCircle, color: "text-success" },
+  REJECTED: { label: "Rejected", icon: XCircle, color: "text-destructive" },
 }
 
 export default function AdminRequestsPage() {
@@ -79,7 +79,7 @@ export default function AdminRequestsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -87,7 +87,7 @@ export default function AdminRequestsPage() {
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Link>
@@ -96,7 +96,7 @@ export default function AdminRequestsPage() {
           <h1 className="text-3xl font-bold">
             Manage <span className="gold-text">Requests</span>
           </h1>
-          <p className="text-[#666]">{requests.length} requests</p>
+          <p className="text-muted-foreground">{requests.length} requests</p>
         </div>
 
         <div className="space-y-3">
@@ -104,9 +104,9 @@ export default function AdminRequestsPage() {
             const statusInfo = statusConfig[request.status] || statusConfig.PENDING
             const StatusIcon = statusInfo.icon
             return (
-              <Card key={request.id}>
+              <Card key={request.id} className="rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className="flex items-center gap-1 text-[#D4A843] min-w-[60px]">
+                  <div className="flex items-center gap-1 text-primary min-w-[60px]">
                     <ChevronUp className="h-4 w-4" />
                     <span className="font-bold">{request.upvoteCount}</span>
                   </div>
@@ -119,16 +119,16 @@ export default function AdminRequestsPage() {
                       </Badge>
                     </div>
                     {request.note && (
-                      <p className="text-sm text-[#999] line-clamp-1">{request.note}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">{request.note}</p>
                     )}
-                    <p className="text-xs text-[#666] mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       by {request.user.name} &middot; {formatDate(request.createdAt)}
                     </p>
                   </div>
                   <select
                     value={request.status}
                     onChange={(e) => handleStatusChange(request.id, e.target.value)}
-                    className="h-8 rounded-lg border border-[#333] bg-[#111] px-2 text-sm text-[#e0e0e0]"
+                    className="h-8 rounded-xl border border-border bg-background px-2 text-sm text-foreground"
                   >
                     {Object.keys(statusConfig).map((status) => (
                       <option key={status} value={status}>

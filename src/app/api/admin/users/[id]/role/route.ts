@@ -13,13 +13,11 @@ export async function PATCH(
     const { id } = await params;
     const { role } = await request.json();
 
-    if (!role) {
-      return NextResponse.json({ success: false, message: "Role is required" }, { status: 400 });
-    }
-
-    const validRoles = ["MEMBER", "PREMIUM", "MODERATOR", "ADMIN"];
-    if (!validRoles.includes(role)) {
-      return NextResponse.json({ success: false, message: "Invalid role" }, { status: 400 });
+    if (!role || !["GUEST", "MEMBER", "PREMIUM", "MODERATOR", "ADMIN"].includes(role)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid role" },
+        { status: 400 }
+      );
     }
 
     const user = await prisma.user.update({

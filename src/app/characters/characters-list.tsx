@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Users } from "lucide-react"
+import { Search, Users, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { CharacterCard } from "@/components/character/character-card"
 import { EmptyState } from "@/components/shared/empty-state"
+import { Button } from "@/components/ui/button"
 
 interface Character {
   id: string
@@ -23,6 +24,7 @@ export default function CharactersList() {
   const [characters, setCharacters] = useState<Character[]>([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   async function fetchCharacters() {
     try {
@@ -30,9 +32,11 @@ export default function CharactersList() {
       const data = await res.json()
       if (data.success) {
         setCharacters(data.data)
+      } else {
+        setError("Failed to load characters")
       }
     } catch {
-      console.error("Failed to fetch characters")
+      setError("Failed to load characters. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -49,10 +53,22 @@ export default function CharactersList() {
   )
 
   if (loading) {
+  if (error) {
     return (
+      <div className="text-center py-12">
+        <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+        <p className="text-[#999] mb-4">{error}</p>
+        <Button variant="outline" onClick={() => { setError(null); setLoading(true); fetchCharacters() }}>
+          Try Again
+        </Button>
+      </div>
+    )
+  }
+
+  return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="h-24 rounded-xl bg-[#161616] border border-[#222] animate-pulse" />
+          <div key={i} className="h-24 rounded-2xl bg-card border border-border animate-pulse" />
         ))}
       </div>
     )
@@ -61,7 +77,7 @@ export default function CharactersList() {
   return (
     <div className="space-y-6">
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search characters..."

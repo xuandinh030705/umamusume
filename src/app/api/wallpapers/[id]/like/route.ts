@@ -11,27 +11,35 @@ export async function POST(
 
   const userId = authResult.session.user?.id;
   if (!userId) {
-    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
     const { id } = await params;
 
-    const existing = await prisma.like.findUnique({
-      where: { userId_wallpaperId: { userId, wallpaperId: id } },
+    const existingLike = await prisma.like.findFirst({
+      where: { userId, wallpaperId: id },
     });
 
-    if (existing) {
-      await prisma.like.delete({ where: { id: existing.id } });
+    if (existingLike) {
+      await prisma.like.delete({ where: { id: existingLike.id } });
       return NextResponse.json({
         success: true,
-        message: "Like removed",
         data: { liked: false },
       });
     }
 
-    await prisma.like.create({ data: { userId, wallpaperId: id } });
-    return NextResponse.json({ success: true, message: "Liked", data: { liked: true } });
+    await prisma.like.create({
+      data: { userId, wallpaperId: id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: { liked: true },
+    });
   } catch (error) {
     return NextResponse.json(
       { success: false, message: "Internal server error" },

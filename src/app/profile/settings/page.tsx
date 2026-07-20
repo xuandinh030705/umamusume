@@ -69,7 +69,7 @@ export default function ProfileSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -79,20 +79,20 @@ export default function ProfileSettingsPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/profile"
-          className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Profile
         </Link>
 
-        <Card>
+        <Card className="rounded-2xl glass-strong border-border-strong">
           <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
+            <CardTitle className="text-foreground">Edit Profile</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#999]">Name</label>
+                <label className="text-sm font-medium text-muted-foreground">Name</label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -100,7 +100,7 @@ export default function ProfileSettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#999]">Bio</label>
+                <label className="text-sm font-medium text-muted-foreground">Bio</label>
                 <Textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}

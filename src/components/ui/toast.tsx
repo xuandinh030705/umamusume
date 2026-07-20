@@ -35,10 +35,10 @@ const iconMap = {
 }
 
 const colorMap = {
-  success: "border-green-500/30 bg-green-500/10",
-  error: "border-red-500/30 bg-red-500/10",
-  warning: "border-yellow-500/30 bg-yellow-500/10",
-  info: "border-blue-500/30 bg-blue-500/10",
+  success: "border-success/30 bg-success/10",
+  error: "border-destructive/30 bg-destructive/10",
+  warning: "border-warning/30 bg-warning/10",
+  info: "border-info/30 bg-info/10",
 }
 
 const iconColorMap = {
@@ -56,7 +56,7 @@ function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => [...prev, { ...toast, id }])
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 5000)
+    }, 4000)
   }, [])
 
   const removeToast = useCallback((id: string) => {
@@ -73,21 +73,21 @@ function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={toast.id}
               className={cn(
-                "flex items-start gap-3 rounded-lg border p-4 shadow-lg min-w-[300px] max-w-[400px]",
+                "flex items-start gap-3 rounded-2xl border p-4 shadow-2xl min-w-[300px] max-w-[400px] glass-strong",
                 "animate-slide-up",
                 colorMap[toast.type]
               )}
             >
               <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", iconColorMap[toast.type])} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white">{toast.title}</p>
+                <p className="text-sm font-medium text-foreground">{toast.title}</p>
                 {toast.description && (
-                  <p className="text-xs text-[#aaa] mt-0.5">{toast.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{toast.description}</p>
                 )}
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="shrink-0 p-0.5 text-[#666] hover:text-white transition-colors"
+                className="shrink-0 p-0.5 text-muted hover:text-foreground transition-colors rounded-lg hover:bg-surface-hover"
               >
                 <X className="h-4 w-4" />
               </button>

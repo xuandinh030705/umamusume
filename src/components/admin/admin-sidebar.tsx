@@ -32,12 +32,12 @@ function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-60 shrink-0 border-r border-[#222] bg-[#0a0a0a] min-h-screen">
-      <div className="p-4 border-b border-[#222]">
-        <Link href="/admin" className="text-lg font-bold text-[#D4A843]">
+    <aside className="w-60 shrink-0 border-r border-border bg-background min-h-screen">
+      <div className="p-4 border-b border-border">
+        <Link href="/admin" className="text-lg font-bold text-primary">
           Admin Panel
         </Link>
-        <p className="text-xs text-[#666] mt-0.5">Manage UmaWall</p>
+        <p className="text-xs text-muted-foreground mt-0.5">Manage UmaWall</p>
       </div>
       <nav className="p-3 space-y-0.5">
         {adminLinks.map((link) => {
@@ -49,10 +49,10 @@ function AdminSidebar() {
               key={link.href}
               href={link.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "text-[#D4A843] bg-[#D4A843]/10"
-                  : "text-[#999] hover:text-white hover:bg-[#111]"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
               )}
             >
               <link.icon className="h-4 w-4" />

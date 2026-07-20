@@ -59,30 +59,31 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-[#D4A843]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-[#D4A843]/3 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-primary/3 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-[120px]" />
       </div>
 
-      <Card className="relative w-full max-w-md">
-        <CardHeader className="text-center">
-          <Link href="/" className="text-2xl font-bold text-[#D4A843] mb-2">
+      <Card className="relative w-full max-w-md rounded-2xl glass-strong border-border-strong">
+        <CardHeader className="text-center space-y-2">
+          <Link href="/" className="text-2xl font-bold gold-text mb-2 inline-block">
             UmaWall
           </Link>
-          <CardTitle>Create Account</CardTitle>
-          <CardDescription>Join the UmaWall community today</CardDescription>
+          <CardTitle className="text-foreground">Create Account</CardTitle>
+          <CardDescription className="text-muted-foreground">Join the UmaWall community today</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Name</label>
+              <label className="text-sm font-medium text-muted-foreground">Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type="text"
                   placeholder="Your name"
@@ -95,9 +96,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Email</label>
+              <label className="text-sm font-medium text-muted-foreground">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -110,9 +111,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Password</label>
+              <label className="text-sm font-medium text-muted-foreground">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
@@ -124,7 +125,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666] hover:text-[#999] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-muted-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -132,9 +133,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Confirm Password</label>
+              <label className="text-sm font-medium text-muted-foreground">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm your password"
@@ -150,8 +151,8 @@ export default function RegisterPage() {
               <div className="space-y-1">
                 {passwordChecks.map((check) => (
                   <div key={check.label} className="flex items-center gap-2 text-xs">
-                    <Check className={`h-3 w-3 ${check.valid ? "text-green-400" : "text-[#666]"}`} />
-                    <span className={check.valid ? "text-green-400" : "text-[#666]"}>
+                    <Check className={`h-3 w-3 ${check.valid ? "text-success" : "text-muted"}`} />
+                    <span className={check.valid ? "text-success" : "text-muted"}>
                       {check.label}
                     </span>
                   </div>
@@ -171,9 +172,9 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-[#666]">
+          <p className="text-center text-sm text-muted">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-[#D4A843] hover:underline">
+            <Link href="/auth/login" className="text-primary hover:underline">
               Sign in
             </Link>
           </p>

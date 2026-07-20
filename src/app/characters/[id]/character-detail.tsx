@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, Bell, BellOff, Users, Image } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { ArrowLeft, Bell, BellOff, Users, Image, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { WallpaperCard } from "@/components/wallpaper/wallpaper-card"
 import { WallpaperGrid } from "@/components/wallpaper/wallpaper-grid"
 import { EmptyState } from "@/components/shared/empty-state"
+import { useToast } from "@/components/ui/toast"
 
 interface Character {
   id: string
@@ -41,10 +44,16 @@ interface Wallpaper {
 }
 
 export default function CharacterDetail({ slug }: { slug: string }) {
+  const { data: session } = useSession()
+  const router = useRouter()
+  const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([])
   const [loading, setLoading] = useState(true)
   const [following, setFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
+
+  const userId = (session?.user as { id?: string })?.id
 
   async function fetchCharacter() {
     try {
@@ -64,6 +73,50 @@ export default function CharacterDetail({ slug }: { slug: string }) {
   useEffect(() => {
     fetchCharacter()
   }, [slug])
+
+  useEffect(() => {
+    if (userId && character) {
+      fetch(`/api/characters/${character.id}/follow`, { method: "POST" })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            setFollowing(data.data.following)
+            // Toggle back since we just wanted to check status
+            if (data.data.following) {
+              return fetch(`/api/characters/${character.id}/follow`, { method: "POST" })
+            }
+          }
+        })
+        .catch(() => {})
+    }
+  }, [userId, character?.id])
+
+  async function handleFollow() {
+    if (!userId) {
+      router.push(`/auth/login?callbackUrl=/characters/${slug}`)
+      return
+    }
+    if (!character) return
+
+    setFollowLoading(true)
+    try {
+      const res = await fetch(`/api/characters/${character.id}/follow`, {
+        method: "POST",
+      })
+      const data = await res.json()
+      if (data.success) {
+        setFollowing(data.data.following)
+        addToast({
+          type: "success",
+          title: data.data.following ? `Following ${character.name}` : `Unfollowed ${character.name}`,
+        })
+      }
+    } catch {
+      addToast({ type: "error", title: "Failed to update follow status" })
+    } finally {
+      setFollowLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -142,20 +195,18 @@ export default function CharacterDetail({ slug }: { slug: string }) {
             </div>
             <Button
               variant={following ? "outline" : "default"}
-              onClick={() => setFollowing(!following)}
+              onClick={handleFollow}
+              disabled={followLoading}
               className="shrink-0"
             >
-              {following ? (
-                <>
-                  <BellOff className="h-4 w-4 mr-2" />
-                  Unfollow
-                </>
+              {followLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : following ? (
+                <BellOff className="h-4 w-4 mr-2" />
               ) : (
-                <>
-                  <Bell className="h-4 w-4 mr-2" />
-                  Follow
-                </>
+                <Bell className="h-4 w-4 mr-2" />
               )}
+              {following ? "Unfollow" : "Follow"}
             </Button>
           </div>
         </div>

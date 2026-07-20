@@ -80,22 +80,22 @@ export default function PremiumPage() {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative overflow-hidden py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#0a0a0a] to-[#1a1a2e]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary via-background to-secondary" />
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4A843]/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[#D4A843]/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D4A843]/10 border border-[#D4A843]/20 mb-6">
-            <Crown className="h-4 w-4 text-[#D4A843]" />
-            <span className="text-sm text-[#D4A843]">Premium</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+            <Crown className="h-4 w-4 text-primary" />
+            <span className="text-sm text-primary">Premium</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             Upgrade to <span className="gold-text">Premium</span>
           </h1>
-          <p className="text-lg text-[#999] max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Get the ultimate UmaWall experience with unlimited downloads, exclusive 4K content,
             and early access to new wallpapers.
           </p>
@@ -103,7 +103,7 @@ export default function PremiumPage() {
       </section>
 
       {/* Features */}
-      <section className="py-16 bg-[#111]">
+      <section className="py-16 bg-card">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center mb-12">
             What you get with <span className="gold-text">Premium</span>
@@ -113,10 +113,10 @@ export default function PremiumPage() {
             {features.map((feature) => (
               <div
                 key={feature}
-                className="flex items-start gap-3 p-4 rounded-xl bg-[#161616] border border-[#222]"
+                className="flex items-start gap-3 p-4 rounded-2xl bg-card border border-border"
               >
-                <Check className="h-5 w-5 text-[#D4A843] shrink-0 mt-0.5" />
-                <span className="text-sm text-[#ccc]">{feature}</span>
+                <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm text-muted-foreground">{feature}</span>
               </div>
             ))}
           </div>
@@ -124,17 +124,17 @@ export default function PremiumPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-16 bg-[#0a0a0a]">
+      <section className="py-16 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center mb-12">Choose your plan</h2>
 
           {/* Message */}
           {message && (
             <div
-              className={`mb-6 p-4 rounded-xl text-center text-sm ${
+              className={`mb-6 p-4 rounded-2xl text-center text-sm ${
                 message.type === "success"
-                  ? "bg-green-500/10 border border-green-500/30 text-green-400"
-                  : "bg-red-500/10 border border-red-500/30 text-red-400"
+                  ? "bg-success/10 border border-success/30 text-success"
+                  : "bg-destructive/10 border border-destructive/30 text-destructive"
               }`}
             >
               {message.text}
@@ -145,21 +145,21 @@ export default function PremiumPage() {
             {plans.map((plan) => (
               <Card
                 key={plan.name}
-                className={`relative ${plan.popular ? "border-[#D4A843]" : ""}`}
+                className={`relative rounded-2xl border-border bg-card ${plan.popular ? "!border-primary" : ""}`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#D4A843] text-black text-xs font-semibold rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-background text-xs font-semibold rounded-full">
                     Most Popular
                   </div>
                 )}
                 <CardContent className="p-6 text-center">
                   <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-3xl font-bold text-[#D4A843]">{plan.price}</span>
-                    <span className="text-[#666]">{plan.period}</span>
+                    <span className="text-3xl font-bold text-primary">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
                   </div>
                   {plan.savings && (
-                    <p className="text-sm text-green-400 mb-4">{plan.savings}</p>
+                    <p className="text-sm text-success mb-4">{plan.savings}</p>
                   )}
 
                   {isPremium ? (
@@ -185,8 +185,8 @@ export default function PremiumPage() {
           </div>
 
           {/* Demo notice */}
-          <div className="mt-8 p-4 rounded-xl bg-[#D4A843]/5 border border-[#D4A843]/20 text-center">
-            <p className="text-sm text-[#D4A843]">
+          <div className="mt-8 p-4 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+            <p className="text-sm text-primary">
               Demo Mode: Payments are simulated. Click any plan to activate Premium instantly.
             </p>
           </div>
@@ -194,7 +194,7 @@ export default function PremiumPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-[#111]">
+      <section className="py-16 bg-card">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center mb-12">Frequently Asked Questions</h2>
 
@@ -217,9 +217,9 @@ export default function PremiumPage() {
                 a: "All wallpapers you've downloaded remain yours. Downgrading only affects future downloads and access to premium content.",
               },
             ].map((faq) => (
-              <div key={faq.q} className="p-4 rounded-xl bg-[#161616] border border-[#222]">
+              <div key={faq.q} className="p-4 rounded-2xl bg-card border border-border">
                 <h3 className="font-medium mb-2">{faq.q}</h3>
-                <p className="text-sm text-[#999]">{faq.a}</p>
+                <p className="text-sm text-muted-foreground">{faq.a}</p>
               </div>
             ))}
           </div>
@@ -227,9 +227,9 @@ export default function PremiumPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#0a0a0a]">
+      <section className="py-16 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-[#666] mb-6">
+          <p className="text-muted-foreground mb-6">
             Join thousands of UmaMusume fans who already have Premium
           </p>
           {!session && (

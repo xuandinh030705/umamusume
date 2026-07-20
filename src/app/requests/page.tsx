@@ -30,8 +30,8 @@ interface Request {
 const statusConfig: Record<string, { label: string; icon: typeof Clock; color: string }> = {
   PENDING: { label: "Pending", icon: Clock, color: "text-yellow-400" },
   IN_PROGRESS: { label: "In Progress", icon: AlertCircle, color: "text-blue-400" },
-  DONE: { label: "Done", icon: CheckCircle, color: "text-green-400" },
-  REJECTED: { label: "Rejected", icon: XCircle, color: "text-red-400" },
+  DONE: { label: "Done", icon: CheckCircle, color: "text-success" },
+  REJECTED: { label: "Rejected", icon: XCircle, color: "text-destructive" },
 }
 
 export default function RequestsPage() {
@@ -125,7 +125,7 @@ export default function RequestsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -138,7 +138,7 @@ export default function RequestsPage() {
             <h1 className="text-3xl font-bold mb-2">
               Character <span className="gold-text">Requests</span>
             </h1>
-            <p className="text-[#666]">Vote for the characters you want to see next!</p>
+            <p className="text-muted-foreground">Vote for the characters you want to see next!</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -153,7 +153,7 @@ export default function RequestsPage() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#999]">Character Name</label>
+                  <label className="text-sm font-medium text-muted-foreground">Character Name</label>
                   <Input
                     placeholder="e.g. Symboli Rudolf"
                     value={charName}
@@ -162,7 +162,7 @@ export default function RequestsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#999]">Note (optional)</label>
+                  <label className="text-sm font-medium text-muted-foreground">Note (optional)</label>
                   <Textarea
                     placeholder="Why do you want this character? Any specific scene or outfit?"
                     value={note}
@@ -184,28 +184,28 @@ export default function RequestsPage() {
               const statusInfo = statusConfig[request.status] || statusConfig.PENDING
               const StatusIcon = statusInfo.icon
               return (
-                <Card key={request.id}>
+                <Card key={request.id} className="rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
                   <CardContent className="p-4 flex items-center gap-4">
                     <button
                       onClick={() => handleUpvote(request.id)}
-                      className="flex flex-col items-center gap-1 min-w-[60px] p-2 rounded-lg hover:bg-[#1a1a2e] transition-colors"
+                      className="flex flex-col items-center gap-1 min-w-[60px] p-2 rounded-xl hover:bg-surface-hover transition-colors"
                     >
-                      <ChevronUp className="h-5 w-5 text-[#D4A843]" />
-                      <span className="text-lg font-bold text-[#D4A843]">{request.upvoteCount}</span>
+                      <ChevronUp className="h-5 w-5 text-primary" />
+                      <span className="text-lg font-bold text-primary">{request.upvoteCount}</span>
                     </button>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-white">{request.characterName}</h3>
+                        <h3 className="font-semibold text-foreground">{request.characterName}</h3>
                         <Badge variant="outline" className={`text-xs ${statusInfo.color}`}>
                           <StatusIcon className="h-3 w-3 mr-1" />
                           {statusInfo.label}
                         </Badge>
                       </div>
                       {request.note && (
-                        <p className="text-sm text-[#999] line-clamp-1">{request.note}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">{request.note}</p>
                       )}
-                      <p className="text-xs text-[#666] mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         by {request.user.name} &middot; {formatDate(request.createdAt)}
                       </p>
                     </div>

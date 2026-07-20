@@ -49,8 +49,8 @@ function InfiniteScroll({
         <div ref={sentinelRef} className="py-8 flex justify-center">
           {loading
             ? loadingComponent || (
-                <div className="flex items-center gap-2 text-sm text-[#666]">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#333] border-t-[#D4A843]" />
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-border-strong border-t-primary" />
                   Loading more...
                 </div>
               )

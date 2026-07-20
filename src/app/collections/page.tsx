@@ -96,7 +96,7 @@ export default function CollectionsPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -109,7 +109,7 @@ export default function CollectionsPage() {
             <h1 className="text-3xl font-bold mb-2">
               My <span className="gold-text">Collections</span>
             </h1>
-            <p className="text-[#666]">Organize your favorite wallpapers</p>
+            <p className="text-muted-foreground">Organize your favorite wallpapers</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -124,7 +124,7 @@ export default function CollectionsPage() {
               </DialogHeader>
               <form onSubmit={handleCreate} className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#999]">Name</label>
+                  <label className="text-sm font-medium text-muted-foreground">Name</label>
                   <Input
                     placeholder="My Favorites"
                     value={newName}
@@ -133,7 +133,7 @@ export default function CollectionsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#999]">Description (optional)</label>
+                  <label className="text-sm font-medium text-muted-foreground">Description (optional)</label>
                   <Textarea
                     placeholder="A collection of my favorite wallpapers..."
                     value={newDesc}
@@ -152,27 +152,27 @@ export default function CollectionsPage() {
         {collections.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {collections.map((collection) => (
-              <Card key={collection.id} className="group">
+              <Card key={collection.id} className="group rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
                   <div className="min-w-0 flex-1">
                     <Link href={`/collections/${collection.id}`}>
-                      <CardTitle className="text-lg hover:text-[#D4A843] transition-colors truncate">
+                      <CardTitle className="text-lg hover:text-primary transition-colors truncate">
                         {collection.name}
                       </CardTitle>
                     </Link>
                     {collection.description && (
-                      <p className="text-sm text-[#666] mt-1 line-clamp-2">{collection.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{collection.description}</p>
                     )}
                   </div>
                   <button
                     onClick={() => handleDelete(collection.id)}
-                    className="p-1.5 text-[#666] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                    className="p-1.5 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between text-sm text-[#666]">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{collection._count.items} wallpapers</span>
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">

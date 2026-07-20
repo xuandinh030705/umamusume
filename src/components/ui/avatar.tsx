@@ -14,7 +14,7 @@ const Avatar = forwardRef<HTMLImageElement, AvatarProps>(
       return (
         <div
           className={cn(
-            "flex items-center justify-center rounded-full bg-[#1a1a2e] text-[#D4A843] font-medium text-sm",
+            "flex items-center justify-center rounded-full bg-surface text-primary font-medium text-sm border border-border-strong",
             className
           )}
         >
@@ -31,7 +31,7 @@ const Avatar = forwardRef<HTMLImageElement, AvatarProps>(
         src={src}
         alt={alt || ""}
         onError={() => setError(true)}
-        className={cn("rounded-full object-cover", className)}
+        className={cn("rounded-full object-cover border border-border-strong", className)}
         {...props}
       />
     )

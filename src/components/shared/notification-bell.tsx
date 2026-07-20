@@ -116,11 +116,11 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 hover:bg-[#222] rounded-lg transition-colors"
+        className="relative p-2 hover:bg-surface-hover rounded-xl transition-colors"
       >
-        <Bell className="h-5 w-5 text-[#666] hover:text-[#D4A843] transition-colors" />
+        <Bell className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#D4A843] text-black text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-background text-xs font-bold rounded-full flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -132,14 +132,14 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-2 w-80 bg-[#161616] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-3 border-b border-[#2a2a2a]">
+            <div className="flex items-center justify-between p-3 border-b border-border">
               <h3 className="font-semibold text-sm">Notifications</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-[#D4A843] hover:text-[#F5E6C8] flex items-center gap-1"
+                  className="text-xs text-primary hover:text-primary-light flex items-center gap-1"
                 >
                   <CheckCheck className="h-3 w-3" />
                   Mark all read
@@ -150,11 +150,11 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             {/* Notification list */}
             <div className="max-h-96 overflow-y-auto">
               {loading && notifications.length === 0 ? (
-                <div className="p-8 text-center text-[#666] text-sm">
+                <div className="p-8 text-center text-muted-foreground text-sm">
                   Loading...
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="p-8 text-center text-[#666] text-sm">
+                <div className="p-8 text-center text-muted-foreground text-sm">
                   No notifications yet
                 </div>
               ) : (
@@ -162,8 +162,8 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                   <div
                     key={notification.id}
                     className={cn(
-                      "flex items-start gap-3 p-3 hover:bg-[#1a1a1a] transition-colors cursor-pointer",
-                      !notification.isRead && "bg-[#D4A843]/5"
+                      "flex items-start gap-3 p-3 hover:bg-surface-hover transition-colors cursor-pointer",
+                      !notification.isRead && "bg-primary/5"
                     )}
                     onClick={() => {
                       if (!notification.isRead) {
@@ -183,13 +183,13 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                         className={cn(
                           "text-sm",
                           !notification.isRead
-                            ? "text-white"
-                            : "text-[#666]"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                         )}
                       >
                         {notification.content}
                       </p>
-                      <p className="text-xs text-[#444] mt-1">
+                      <p className="text-xs text-muted mt-1">
                         {formatTime(notification.createdAt)}
                       </p>
                     </div>
@@ -199,9 +199,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                           e.stopPropagation();
                           markAsRead([notification.id]);
                         }}
-                        className="p-1 hover:bg-[#222] rounded"
+                        className="p-1 hover:bg-surface-hover rounded-lg"
                       >
-                        <Check className="h-3 w-3 text-[#666]" />
+                        <Check className="h-3 w-3 text-muted-foreground" />
                       </button>
                     )}
                   </div>
@@ -211,13 +211,13 @@ export function NotificationBell({ userId }: NotificationBellProps) {
 
             {/* Footer */}
             {notifications.length > 0 && (
-              <div className="p-2 border-t border-[#2a2a2a]">
+              <div className="p-2 border-t border-border">
                 <button
                   onClick={() => {
                     window.location.href = "/notifications";
                     setIsOpen(false);
                   }}
-                  className="w-full text-center text-xs text-[#D4A843] hover:text-[#F5E6C8] py-2"
+                  className="w-full text-center text-xs text-primary hover:text-primary-light py-2"
                 >
                   View all notifications
                 </button>

@@ -11,24 +11,30 @@ export async function POST(
 
   const userId = authResult.session.user?.id;
   if (!userId) {
-    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
     const { id } = await params;
 
-    const existing = await prisma.upvote.findUnique({
-      where: { userId_requestId: { userId, requestId: id } },
+    const existingUpvote = await prisma.upvote.findFirst({
+      where: { userId, requestId: id },
     });
 
-    if (existing) {
+    if (existingUpvote) {
       return NextResponse.json(
-        { success: false, message: "Already upvoted" },
+        { success: false, message: "You already upvoted this request" },
         { status: 409 }
       );
     }
 
-    await prisma.upvote.create({ data: { userId, requestId: id } });
+    await prisma.upvote.create({
+      data: { userId, requestId: id },
+    });
+
     await prisma.characterRequest.update({
       where: { id },
       data: { upvoteCount: { increment: 1 } },

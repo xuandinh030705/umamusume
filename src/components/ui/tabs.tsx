@@ -44,7 +44,7 @@ function Tabs({ defaultValue, value: controlledValue, onValueChange, children, c
 
 function TabsList({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex gap-1 rounded-lg bg-[#111] p-1", className)}>
+    <div className={cn("flex gap-1 rounded-xl bg-surface p-1 border border-border-strong", className)}>
       {children}
     </div>
   )
@@ -58,16 +58,16 @@ function TabsTrigger({ children, value, className }: { children: ReactNode; valu
     <button
       onClick={() => setActiveTab(value)}
       className={cn(
-        "relative rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
-        isActive ? "text-[#D4A843]" : "text-[#999] hover:text-[#e0e0e0]",
+        "relative rounded-lg px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
         className
       )}
     >
       {isActive && (
         <motion.div
           layoutId="tab-indicator"
-          className="absolute inset-0 rounded-md bg-[#1a1a2e]"
-          transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+          className="absolute inset-0 rounded-lg bg-surface-hover border border-border-strong"
+          transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
         />
       )}
       <span className="relative z-10">{children}</span>
@@ -78,7 +78,7 @@ function TabsTrigger({ children, value, className }: { children: ReactNode; valu
 function TabsContent({ children, value, className }: { children: ReactNode; value: string; className?: string }) {
   const { activeTab } = useTabs()
   if (activeTab !== value) return null
-  return <div className={cn("mt-4", className)}>{children}</div>
+  return <div className={cn("mt-4 animate-fade-in", className)}>{children}</div>
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent }

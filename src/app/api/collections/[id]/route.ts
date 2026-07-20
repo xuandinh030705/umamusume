@@ -11,19 +11,40 @@ export async function GET(
     const collection = await prisma.collection.findUnique({
       where: { id },
       include: {
+        user: { select: { id: true, name: true, image: true } },
         items: {
           include: {
             wallpaper: {
-              include: { character: true, _count: { select: { likes: true, comments: true } } },
+              include: {
+                character: true,
+                _count: { select: { likes: true, comments: true } },
+              },
             },
           },
+          orderBy: { createdAt: "desc" },
         },
-        user: { select: { id: true, name: true, image: true } },
       },
     });
+
     if (!collection) {
-      return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Collection not found" },
+        { status: 404 }
+      );
     }
+
+    if (!collection.isPublic) {
+      const authResult = await requireAuth();
+      if ("error" in authResult) return authResult.error;
+      const userId = authResult.session.user?.id;
+      if (userId !== collection.userId) {
+        return NextResponse.json(
+          { success: false, message: "This collection is private" },
+          { status: 403 }
+        );
+      }
+    }
+
     return NextResponse.json({ success: true, data: collection });
   } catch (error) {
     return NextResponse.json(
@@ -41,26 +62,25 @@ export async function DELETE(
   if ("error" in authResult) return authResult.error;
 
   const userId = authResult.session.user?.id;
-  if (!userId) {
-    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const { id } = await params;
-
-    // Check if user owns this collection
     const collection = await prisma.collection.findUnique({ where: { id } });
+
     if (!collection) {
-      return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Not found" },
+        { status: 404 }
+      );
     }
+
     if (collection.userId !== userId) {
       return NextResponse.json(
-        { success: false, message: "Forbidden: You can only delete your own collections" },
+        { success: false, message: "Forbidden" },
         { status: 403 }
       );
     }
 
-    await prisma.collectionItem.deleteMany({ where: { collectionId: id } });
     await prisma.collection.delete({ where: { id } });
     return NextResponse.json({ success: true, message: "Collection deleted" });
   } catch (error) {

@@ -74,8 +74,8 @@ function DropdownMenuContent({ children, className, align = "center" }: { childr
     <div
       ref={ref}
       className={cn(
-        "absolute z-50 min-w-[12rem] rounded-lg border border-[#333] bg-[#161616] p-1 shadow-xl",
-        "animate-in fade-in zoom-in-95",
+        "absolute z-50 min-w-[14rem] rounded-xl border border-card-border bg-card p-1.5 shadow-2xl glass-strong",
+        "animate-scale-in",
         {
           "left-0": align === "start",
           "left-1/2 -translate-x-1/2": align === "center",
@@ -99,7 +99,7 @@ function DropdownMenuItem({ children, className, onClick }: { children: ReactNod
         setOpen(false)
       }}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-[#e0e0e0] hover:bg-[#222] transition-colors cursor-pointer",
+        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-surface-hover transition-colors cursor-pointer",
         className
       )}
     >
@@ -109,11 +109,11 @@ function DropdownMenuItem({ children, className, onClick }: { children: ReactNod
 }
 
 function DropdownMenuSeparator({ className }: { className?: string }) {
-  return <div className={cn("my-1 h-px bg-[#333]", className)} />
+  return <div className={cn("my-1.5 h-px bg-border-strong", className)} />
 }
 
 function DropdownMenuLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("px-3 py-1.5 text-xs font-medium text-[#999] uppercase tracking-wider", className)}>{children}</div>
+  return <div className={cn("px-3 py-1.5 text-xs font-medium text-muted uppercase tracking-wider", className)}>{children}</div>
 }
 
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel }

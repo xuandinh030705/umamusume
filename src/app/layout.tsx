@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="min-h-screen flex flex-col bg-[#0a0a0a] text-[#e0e0e0] antialiased">
+      <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
         <AuthProvider>
           <ToastProvider>
             <Navbar />

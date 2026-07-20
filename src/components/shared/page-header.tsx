@@ -17,9 +17,9 @@ function PageHeader({ title, description, action, className }: PageHeaderProps) 
   return (
     <div className={cn("flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", className)}>
       <div>
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
         {description && (
-          <p className="mt-1 text-sm text-[#999]">{description}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {action && (

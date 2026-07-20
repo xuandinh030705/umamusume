@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Bell, Check, CheckCheck, ArrowLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Bell, Check, CheckCheck, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -16,11 +18,19 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login?callbackUrl=/notifications");
+    }
+  }, [status, router]);
 
   const fetchNotifications = useCallback(async (pageNum: number) => {
     try {
@@ -47,6 +57,14 @@ export default function NotificationsPage() {
   useEffect(() => {
     fetchNotifications(1);
   }, [fetchNotifications]);
+
+  if (status === "loading" || (status === "unauthenticated")) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+      </div>
+    );
+  }
 
   const markAsRead = async (notificationIds: string[]) => {
     try {
@@ -113,7 +131,7 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="p-2 hover:bg-[#222] rounded-lg transition-colors"
+              className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
@@ -122,7 +140,7 @@ export default function NotificationsPage() {
                 <span className="gold-text">Notifications</span>
               </h1>
               {unreadCount > 0 && (
-                <p className="text-sm text-[#666] mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
                 </p>
               )}
@@ -132,7 +150,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-[#D4A843] hover:bg-[#D4A843]/10 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/10 rounded-xl transition-colors"
             >
               <CheckCheck className="h-4 w-4" />
               Mark all read
@@ -143,8 +161,8 @@ export default function NotificationsPage() {
         {/* Notifications list */}
         {loading && notifications.length === 0 ? (
           <div className="text-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#333] border-t-[#D4A843] mx-auto" />
-            <p className="text-[#666] mt-4">Loading notifications...</p>
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-border-strong border-t-primary mx-auto" />
+            <p className="text-muted-foreground mt-4">Loading notifications...</p>
           </div>
         ) : notifications.length === 0 ? (
           <EmptyState
@@ -158,10 +176,10 @@ export default function NotificationsPage() {
               <div
                 key={notification.id}
                 className={cn(
-                  "flex items-start gap-4 p-4 rounded-xl border transition-all",
+                  "flex items-start gap-4 p-4 rounded-2xl border transition-all",
                   !notification.isRead
-                    ? "bg-[#D4A843]/5 border-[#D4A843]/20"
-                    : "bg-[#161616] border-[#2a2a2a]"
+                    ? "bg-primary/5 border-primary/20"
+                    : "bg-card border-border"
                 )}
               >
                 <span className="text-2xl">
@@ -171,12 +189,12 @@ export default function NotificationsPage() {
                   <p
                     className={cn(
                       "text-sm",
-                      !notification.isRead ? "text-white" : "text-[#999]"
+                      !notification.isRead ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
                     {notification.content}
                   </p>
-                  <p className="text-xs text-[#444] mt-2">
+                  <p className="text-xs text-muted mt-2">
                     {formatDate(notification.createdAt)}
                   </p>
                 </div>
@@ -184,10 +202,10 @@ export default function NotificationsPage() {
                   {!notification.isRead && (
                     <button
                       onClick={() => markAsRead([notification.id])}
-                      className="p-2 hover:bg-[#222] rounded-lg transition-colors"
+                      className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
                       title="Mark as read"
                     >
-                      <Check className="h-4 w-4 text-[#666]" />
+                      <Check className="h-4 w-4 text-muted-foreground" />
                     </button>
                   )}
                   {notification.link && (
@@ -198,7 +216,7 @@ export default function NotificationsPage() {
                           markAsRead([notification.id]);
                         }
                       }}
-                      className="p-2 hover:bg-[#222] rounded-lg transition-colors text-[#D4A843] text-xs"
+                      className="p-2 hover:bg-surface-hover rounded-xl transition-colors text-primary text-xs"
                     >
                       View
                     </Link>
@@ -215,7 +233,7 @@ export default function NotificationsPage() {
                     setPage((p) => p + 1);
                     fetchNotifications(page + 1);
                   }}
-                  className="text-sm text-[#D4A843] hover:text-[#F5E6C8]"
+                  className="text-sm text-primary hover:text-primary-light"
                 >
                   Load more
                 </button>

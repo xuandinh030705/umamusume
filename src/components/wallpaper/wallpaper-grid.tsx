@@ -20,7 +20,7 @@ function WallpaperGrid({ children, className, columns = 4 }: WallpaperGridProps)
   return (
     <div
       className={cn(
-        "grid gap-4",
+        "grid gap-5 stagger-children",
         columnMap[columns],
         className
       )}

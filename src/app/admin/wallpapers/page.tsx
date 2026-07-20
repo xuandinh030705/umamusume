@@ -67,7 +67,7 @@ export default function AdminWallpapersPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -75,7 +75,7 @@ export default function AdminWallpapersPage() {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Link>
@@ -84,21 +84,21 @@ export default function AdminWallpapersPage() {
           <h1 className="text-3xl font-bold">
             Manage <span className="gold-text">Wallpapers</span>
           </h1>
-          <p className="text-[#666]">{wallpapers.length} wallpapers</p>
+          <p className="text-muted-foreground">{wallpapers.length} wallpapers</p>
         </div>
 
         <div className="space-y-3">
           {wallpapers.map((wp) => (
-            <Card key={wp.id}>
+            <Card key={wp.id} className="rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-12 h-16 rounded bg-[#222] flex items-center justify-center shrink-0">
-                  <Image className="h-6 w-6 text-[#666]" />
+                <div className="w-12 h-16 rounded-xl bg-surface flex items-center justify-center shrink-0">
+                  <Image className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link href={`/wallpapers/${wp.id}`} className="font-medium hover:text-[#D4A843] transition-colors">
+                  <Link href={`/wallpapers/${wp.id}`} className="font-medium hover:text-primary transition-colors">
                     {wp.title}
                   </Link>
-                  <div className="flex items-center gap-3 text-xs text-[#666] mt-1">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                     {wp.character && <span>{wp.character.name}</span>}
                     <span>{wp.deviceType}</span>
                     <span>{wp.format}</span>
@@ -107,7 +107,7 @@ export default function AdminWallpapersPage() {
                     </Badge>
                   </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-4 text-xs text-[#666]">
+                <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Eye className="h-3 w-3" />
                     {wp.viewCount}
@@ -117,14 +117,14 @@ export default function AdminWallpapersPage() {
                     {wp.downloadCount}
                   </span>
                 </div>
-                <div className="text-xs text-[#666] hidden md:block">
+                <div className="text-xs text-muted-foreground hidden md:block">
                   {formatDate(wp.createdAt)}
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(wp.id)}
-                  className="text-red-400 hover:text-red-300"
+                  className="text-destructive hover:text-destructive/80"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

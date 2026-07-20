@@ -56,6 +56,18 @@ export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
+  const userId = (authResult.session.user as { id?: string })?.id;
+  const userEmail = (authResult.session.user as { email?: string })?.email;
+
+  let user = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
+  if (!user && userEmail) {
+    user = await prisma.user.findUnique({ where: { email: userEmail } });
+  }
+  if (!user) {
+    console.error("Wallpaper upload auth failed:", { userId, userEmail });
+    return NextResponse.json({ success: false, message: "User not found. Please log out and log back in." }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { title, description, characterId, fileUrl, thumbnailUrl, previewUrl, resolution, deviceType, format, isPremium, tags } = body;
@@ -64,15 +76,17 @@ export async function POST(request: NextRequest) {
     }
     const wallpaper = await prisma.wallpaper.create({
       data: {
-        title, description, characterId, fileUrl, thumbnailUrl, previewUrl, resolution,
-        deviceType, format, isPremium: isPremium || false, wallpaperStatus: "PENDING",
-        uploaderId: authResult.session.user?.id,
-        wallpaperTags: tags ? { create: tags.map((tagId: string) => ({ tagId })) } : undefined,
+        title, description, fileUrl, thumbnailUrl, previewUrl, resolution,
+        deviceType, format, isPremium: isPremium || false, wallpaperStatus: "PUBLISHED",
+        uploaderId: user.id,
+        ...(characterId && { characterId }),
+        wallpaperTags: tags && tags.length > 0 ? { create: tags.map((tagId: string) => ({ tagId })) } : undefined,
       },
       include: { character: true, wallpaperTags: { include: { tag: true } } },
     });
     return NextResponse.json({ success: true, message: "Wallpaper uploaded", data: wallpaper }, { status: 201 });
   } catch (error) {
+    console.error("Wallpaper create error:", error instanceof Error ? error.message : error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

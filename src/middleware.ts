@@ -39,6 +39,61 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const sessionToken =
+    request.cookies.get("authjs.session-token")?.value ||
+    request.cookies.get("__Secure-authjs.session-token")?.value;
+
+  if (pathname.startsWith("/api/")) {
+    const clientIp = getClientIp(request);
+    const rateLimitKey = `${clientIp}:${pathname}`;
+    const { allowed } = checkApiRateLimit(rateLimitKey, 60000, 100);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many requests" },
+        { status: 429 }
+      );
+    }
+
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/admin")) {
+    if (!sessionToken) {
+      const loginUrl = new URL("/auth/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/profile")) {
+    if (!sessionToken) {
+      const loginUrl = new URL("/auth/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/collections")) {
+    if (!sessionToken) {
+      const loginUrl = new URL("/auth/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/notifications")) {
+    if (!sessionToken) {
+      const loginUrl = new URL("/auth/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
@@ -47,5 +102,7 @@ export const config = {
     "/admin/:path*",
     "/profile/:path*",
     "/collections/:path*",
+    "/notifications/:path*",
+    "/api/:path*",
   ],
 };

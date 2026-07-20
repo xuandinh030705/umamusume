@@ -49,22 +49,23 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4A843]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[#D4A843]/3 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-primary/3 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-[120px]" />
       </div>
 
-      <Card className="relative w-full max-w-md">
-        <CardHeader className="text-center">
-          <Link href="/" className="text-2xl font-bold text-[#D4A843] mb-2">
+      <Card className="relative w-full max-w-md rounded-2xl glass-strong border-border-strong">
+        <CardHeader className="text-center space-y-2">
+          <Link href="/" className="text-2xl font-bold gold-text mb-2 inline-block">
             UmaWall
           </Link>
-          <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-foreground">Welcome Back</CardTitle>
+          <CardDescription className="text-muted-foreground">Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full border-border-strong hover:bg-surface-hover"
             onClick={handleGoogleLogin}
           >
             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -90,24 +91,24 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#222]" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#161616] px-2 text-[#666]">Or continue with email</span>
+              <span className="bg-card px-2 text-muted">Or continue with email</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Email</label>
+              <label className="text-sm font-medium text-muted-foreground">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -120,9 +121,9 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#999]">Password</label>
+              <label className="text-sm font-medium text-muted-foreground">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
@@ -134,7 +135,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666] hover:text-[#999] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-muted-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -142,11 +143,11 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-[#999]">
-                <input type="checkbox" className="rounded border-[#333] bg-[#111]" />
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <input type="checkbox" className="rounded border-border bg-surface" />
                 Remember me
               </label>
-              <Link href="/auth/forgot-password" className="text-sm text-[#D4A843] hover:underline">
+              <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -163,9 +164,9 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-[#666]">
+          <p className="text-center text-sm text-muted">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="text-[#D4A843] hover:underline">
+            <Link href="/auth/register" className="text-primary hover:underline">
               Sign up
             </Link>
           </p>

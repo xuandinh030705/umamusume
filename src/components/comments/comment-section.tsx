@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, Reply, Trash2 } from "lucide-react"
+import { Heart, Reply, Trash2, LogIn } from "lucide-react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -56,7 +57,7 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
     const isOwner = currentUserId === comment.user.id
 
     return (
-      <div key={comment.id} className={cn(isReply ? "ml-8 pl-4 border-l border-[#222]" : "")}>
+      <div key={comment.id} className={cn(isReply ? "ml-8 pl-4 border-l border-border" : "")}>
         <div className="flex gap-3 py-3">
           <Avatar
             src={comment.user.image}
@@ -65,14 +66,14 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">{comment.user.name}</span>
-              <span className="text-xs text-[#666]">{formatDate(comment.createdAt)}</span>
+              <span className="text-sm font-medium text-foreground">{comment.user.name}</span>
+              <span className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</span>
             </div>
-            <p className="text-sm text-[#ccc] mt-1">{comment.content}</p>
+            <p className="text-sm text-muted-foreground mt-1">{comment.content}</p>
             <div className="flex items-center gap-3 mt-2">
               <button
                 onClick={() => onLike(comment.id)}
-                className="flex items-center gap-1 text-xs text-[#666] hover:text-red-400 transition-colors"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
                 <Heart className="h-3.5 w-3.5" />
                 {comment.likeCount != null && comment.likeCount > 0 && comment.likeCount}
@@ -80,7 +81,7 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
               {!isReply && (
                 <button
                   onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                  className="flex items-center gap-1 text-xs text-[#666] hover:text-[#D4A843] transition-colors"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Reply className="h-3.5 w-3.5" />
                   Reply
@@ -89,7 +90,7 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
               {isOwner && (
                 <button
                   onClick={() => onDelete(comment.id)}
-                  className="flex items-center gap-1 text-xs text-[#666] hover:text-red-400 transition-colors"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Delete
@@ -132,26 +133,40 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
 
   return (
     <div className={cn("space-y-6", className)}>
-      <h3 className="text-lg font-semibold text-white">
+      <h3 className="text-lg font-semibold text-foreground">
         Comments ({comments.length})
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <Textarea
-          placeholder="Share your thoughts..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        />
-        <div className="flex justify-end">
-          <Button type="submit" disabled={!newComment.trim()}>
-            Post Comment
-          </Button>
+      {currentUserId ? (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <Textarea
+            placeholder="Share your thoughts..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            maxLength={1000}
+          />
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-[#666]">{newComment.length}/1000</p>
+            <Button type="submit" disabled={!newComment.trim()}>
+              Post Comment
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div className="p-4 rounded-xl border border-[#222] bg-[#111] text-center">
+          <p className="text-sm text-[#666] mb-3">Sign in to leave a comment</p>
+          <Link href="/auth/login">
+            <Button variant="outline" size="sm">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          </Link>
         </div>
-      </form>
+      )}
 
-      <div className="divide-y divide-[#222]">
+      <div className="divide-y divide-border">
         {comments.length === 0 ? (
-          <p className="text-center text-sm text-[#666] py-8">
+          <p className="text-center text-sm text-muted-foreground py-8">
             No comments yet. Be the first to share your thoughts!
           </p>
         ) : (

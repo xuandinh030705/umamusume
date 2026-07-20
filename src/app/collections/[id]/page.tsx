@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { ArrowLeft, Bookmark, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Bookmark, Eye, EyeOff, Lock, Loader2 } from "lucide-react"
 import { WallpaperCard } from "@/components/wallpaper/wallpaper-card"
 import { WallpaperGrid } from "@/components/wallpaper/wallpaper-grid"
 import { EmptyState } from "@/components/shared/empty-state"
+import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/utils"
 
 interface CollectionData {
@@ -35,8 +37,11 @@ interface CollectionData {
 
 export default function CollectionDetailPage() {
   const params = useParams()
+  const router = useRouter()
+  const { data: session } = useSession()
   const [collection, setCollection] = useState<CollectionData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
 
   async function fetchCollection() {
     try {
@@ -44,6 +49,8 @@ export default function CollectionDetailPage() {
       const data = await res.json()
       if (data.success) {
         setCollection(data.data)
+      } else if (res.status === 403) {
+        setAccessDenied(true)
       }
     } catch {
       console.error("Failed to fetch collection")
@@ -59,7 +66,19 @@ export default function CollectionDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-[#666]">Loading collection...</div>
+        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+      </div>
+    )
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <EmptyState
+          icon={<Lock className="h-12 w-12" />}
+          title="Private Collection"
+          description="This collection is private. You need to be the owner to view it."
+        />
       </div>
     )
   }
@@ -81,7 +100,7 @@ export default function CollectionDetailPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/collections"
-          className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Collections
@@ -90,15 +109,15 @@ export default function CollectionDetailPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{collection.name}</h1>
-            <span className="flex items-center gap-1 text-sm text-[#666]">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               {collection.isPublic ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               {collection.isPublic ? "Public" : "Private"}
             </span>
           </div>
           {collection.description && (
-            <p className="text-[#999]">{collection.description}</p>
+            <p className="text-muted-foreground">{collection.description}</p>
           )}
-          <p className="text-sm text-[#666] mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             By {collection.user.name} &middot; {formatDate(collection.createdAt)}
           </p>
         </div>

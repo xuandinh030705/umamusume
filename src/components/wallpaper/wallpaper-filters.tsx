@@ -89,7 +89,7 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
   const filterContent = (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-[#999] mb-1.5">Character</label>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Character</label>
         <Select
           options={[
             { value: "", label: "All Characters" },
@@ -100,7 +100,7 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-[#999] mb-1.5">Device Type</label>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Device Type</label>
         <Select
           options={deviceTypes}
           value={filters.deviceType}
@@ -108,7 +108,7 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-[#999] mb-1.5">Resolution</label>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Resolution</label>
         <Select
           options={resolutions}
           value={filters.resolution}
@@ -116,7 +116,7 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-[#999] mb-1.5">Format</label>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Format</label>
         <Select
           options={formats}
           value={filters.format}
@@ -124,8 +124,8 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
         />
       </div>
 
-      <div className="pt-2 border-t border-[#222]">
-        <label className="block text-xs font-medium text-[#999] mb-1.5">Sort By</label>
+      <div className="pt-3 border-t border-border">
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">Sort By</label>
         <Select
           options={sortOptions}
           value={filters.sort}
@@ -138,7 +138,7 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
           variant="ghost"
           size="sm"
           onClick={clearFilters}
-          className="w-full text-xs"
+          className="w-full text-xs text-muted-foreground hover:text-foreground hover:bg-surface-hover"
         >
           <X className="h-3.5 w-3.5 mr-1" />
           Clear Filters
@@ -152,8 +152,8 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
       <button
         onClick={() => setMobileOpen(true)}
         className={cn(
-          "lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#D4A843] px-4 py-3 text-sm font-medium text-black shadow-lg",
-          "hover:bg-[#c49c3a] transition-colors"
+          "lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-background bg-primary",
+          "shadow-lg hover:shadow-primary/20 hover:bg-primary-light transition-all duration-300 active:scale-95"
         )}
       >
         <Filter className="h-4 w-4" />
@@ -163,11 +163,11 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
       <aside className={cn("hidden lg:block w-56 shrink-0", className)}>
         <div className="sticky top-20">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-white">Filters</h3>
+            <h3 className="text-sm font-semibold text-foreground">Filters</h3>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-[#D4A843] hover:underline"
+                className="text-xs text-primary hover:text-primary-light transition-colors duration-200"
               >
                 Clear all
               </button>
@@ -179,13 +179,16 @@ function WallpaperFilters({ onFilterChange, className, characters = [] }: Wallpa
 
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />
-          <div className="fixed inset-y-0 right-0 z-50 w-72 border-l border-[#222] bg-[#0a0a0a] p-6 lg:hidden">
+          <div
+            className="fixed inset-0 z-50 bg-scrim backdrop-blur-sm lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-72 border-l border-border bg-card p-6 lg:hidden animate-slide-up">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-semibold text-white">Filters</h3>
+              <h3 className="text-sm font-semibold text-foreground">Filters</h3>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1 text-[#999] hover:text-white"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-200"
               >
                 <X className="h-5 w-5" />
               </button>

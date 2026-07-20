@@ -1,0 +1,10 @@
+SELECT 'User' as tbl, COUNT(*) as cnt FROM "User"
+UNION ALL SELECT 'Wallpaper', COUNT(*) FROM "Wallpaper"
+UNION ALL SELECT 'Character', COUNT(*) FROM "Character"
+UNION ALL SELECT 'Tag', COUNT(*) FROM "Tag"
+UNION ALL SELECT 'Comment', COUNT(*) FROM "Comment"
+UNION ALL SELECT 'Like', COUNT(*) FROM "Like"
+UNION ALL SELECT 'Collection', COUNT(*) FROM "Collection"
+UNION ALL SELECT 'Download', COUNT(*) FROM "Download"
+UNION ALL SELECT 'Notification', COUNT(*) FROM "Notification"
+UNION ALL SELECT 'Report', COUNT(*) FROM "Report";

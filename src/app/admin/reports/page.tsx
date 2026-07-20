@@ -23,7 +23,7 @@ interface Report {
 const statusConfig: Record<string, { label: string; color: string }> = {
   PENDING: { label: "Pending", color: "text-yellow-400" },
   REVIEWED: { label: "Reviewed", color: "text-blue-400" },
-  RESOLVED: { label: "Resolved", color: "text-green-400" },
+  RESOLVED: { label: "Resolved", color: "text-success" },
   DISMISSED: { label: "Dismissed", color: "text-gray-400" },
 }
 
@@ -59,7 +59,7 @@ export default function AdminReportsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -67,7 +67,7 @@ export default function AdminReportsPage() {
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors mb-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Link>
@@ -76,7 +76,7 @@ export default function AdminReportsPage() {
           <h1 className="text-3xl font-bold">
             Manage <span className="gold-text">Reports</span>
           </h1>
-          <p className="text-[#666]">{reports.length} reports</p>
+          <p className="text-muted-foreground">{reports.length} reports</p>
         </div>
 
         {reports.length > 0 ? (
@@ -84,7 +84,7 @@ export default function AdminReportsPage() {
             {reports.map((report) => {
               const statusInfo = statusConfig[report.status] || statusConfig.PENDING
               return (
-                <Card key={report.id}>
+                <Card key={report.id} className="rounded-2xl border-border bg-card hover:bg-card-hover transition-all duration-300">
                   <CardContent className="p-4 flex items-start gap-4">
                     <AlertTriangle className="h-5 w-5 text-yellow-400 mt-1 shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -96,8 +96,8 @@ export default function AdminReportsPage() {
                           {statusInfo.label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-[#999]">{report.reason}</p>
-                      <p className="text-xs text-[#666] mt-1">
+                      <p className="text-sm text-muted-foreground">{report.reason}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
                         by {report.user.name} &middot; {formatDate(report.createdAt)}
                       </p>
                     </div>
@@ -108,8 +108,8 @@ export default function AdminReportsPage() {
           </div>
         ) : (
           <div className="text-center py-20">
-            <AlertTriangle className="h-12 w-12 text-[#333] mx-auto mb-4" />
-            <p className="text-[#666]">No reports yet</p>
+            <AlertTriangle className="h-12 w-12 text-muted mx-auto mb-4" />
+            <p className="text-muted-foreground">No reports yet</p>
           </div>
         )}
       </div>

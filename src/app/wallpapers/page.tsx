@@ -14,9 +14,9 @@ export default function WallpapersPage() {
           <h1 className="text-3xl font-bold mb-2">
             Wallpaper <span className="gold-text">Library</span>
           </h1>
-          <p className="text-[#666]">Browse our collection of Umamusume wallpapers</p>
+          <p className="text-muted-foreground">Browse our collection of Umamusume wallpapers</p>
         </div>
-        <Suspense fallback={<div className="text-center py-20 text-[#666]">Loading wallpapers...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-muted-foreground">Loading wallpapers...</div>}>
           <WallpaperLibrary />
         </Suspense>
       </div>

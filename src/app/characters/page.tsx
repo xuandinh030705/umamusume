@@ -15,9 +15,9 @@ export default function CharactersPage() {
           <h1 className="text-3xl font-bold mb-2">
             <span className="gold-text">Characters</span>
           </h1>
-          <p className="text-[#666]">Explore your favorite Uma Musume characters</p>
+          <p className="text-muted-foreground">Explore your favorite Uma Musume characters</p>
         </div>
-        <Suspense fallback={<div className="text-center py-20 text-[#666]">Loading characters...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-muted-foreground">Loading characters...</div>}>
           <CharactersList />
         </Suspense>
       </div>

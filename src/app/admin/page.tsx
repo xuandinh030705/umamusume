@@ -1,15 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   LayoutDashboard, Image, Users, MessageSquare, AlertTriangle,
-  TrendingUp, Download, Eye, Loader2
+  Download, Eye, Loader2
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
 
 interface Stats {
   totalUsers: number
@@ -21,25 +18,12 @@ interface Stats {
 }
 
 export default function AdminPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login")
-      return
-    }
-    if (status === "authenticated") {
-      const role = (session?.user as any)?.role
-      if (role !== "ADMIN") {
-        router.push("/")
-        return
-      }
-      fetchStats()
-    }
-  }, [status, session])
+    fetchStats()
+  }, [])
 
   async function fetchStats() {
     try {
@@ -55,10 +39,10 @@ export default function AdminPage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -66,15 +50,15 @@ export default function AdminPage() {
   if (!stats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-[#666]">Failed to load dashboard</p>
+        <p className="text-muted-foreground">Failed to load dashboard</p>
       </div>
     )
   }
 
   const statCards = [
     { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-blue-400" },
-    { label: "Total Wallpapers", value: stats.totalWallpapers, icon: Image, color: "text-green-400" },
-    { label: "Total Downloads", value: stats.totalDownloads, icon: Download, color: "text-[#D4A843]" },
+    { label: "Total Wallpapers", value: stats.totalWallpapers, icon: Image, color: "text-success" },
+    { label: "Total Downloads", value: stats.totalDownloads, icon: Download, color: "text-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, color: "text-purple-400" },
   ]
 
@@ -82,17 +66,17 @@ export default function AdminPage() {
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <LayoutDashboard className="h-8 w-8 text-[#D4A843]" />
+          <LayoutDashboard className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat) => (
-            <Card key={stat.label}>
+            <Card key={stat.label} className="rounded-2xl border-border bg-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#666]">{stat.label}</p>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
                     <p className="text-2xl font-bold mt-1">{stat.value.toLocaleString()}</p>
                   </div>
                   <stat.icon className={`h-8 w-8 ${stat.color} opacity-50`} />
@@ -104,11 +88,11 @@ export default function AdminPage() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Recent Users */}
-          <Card>
+          <Card className="rounded-2xl border-border bg-card">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Recent Users</span>
-                <Link href="/admin/users" className="text-sm text-[#D4A843] hover:underline">
+                <Link href="/admin/users" className="text-sm text-primary hover:underline">
                   View All
                 </Link>
               </CardTitle>
@@ -116,8 +100,8 @@ export default function AdminPage() {
             <CardContent>
               <div className="space-y-3">
                 {stats.recentUsers.map((user) => (
-                  <div key={user.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#111] transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center text-sm font-medium">
+                  <div key={user.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-hover transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-sm font-medium">
                       {user.image ? (
                         <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
                       ) : (
@@ -126,7 +110,7 @@ export default function AdminPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{user.name}</p>
-                      <p className="text-xs text-[#666]">{user.role}</p>
+                      <p className="text-xs text-muted-foreground">{user.role}</p>
                     </div>
                   </div>
                 ))}
@@ -135,11 +119,11 @@ export default function AdminPage() {
           </Card>
 
           {/* Top Wallpapers */}
-          <Card>
+          <Card className="rounded-2xl border-border bg-card">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Top Wallpapers</span>
-                <Link href="/admin/wallpapers" className="text-sm text-[#D4A843] hover:underline">
+                <Link href="/admin/wallpapers" className="text-sm text-primary hover:underline">
                   View All
                 </Link>
               </CardTitle>
@@ -147,11 +131,11 @@ export default function AdminPage() {
             <CardContent>
               <div className="space-y-3">
                 {stats.topWallpapers.map((wp, i) => (
-                  <div key={wp.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#111] transition-colors">
-                    <span className="text-sm font-bold text-[#D4A843] w-6">{i + 1}</span>
+                  <div key={wp.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-hover transition-colors">
+                    <span className="text-sm font-bold text-primary w-6">{i + 1}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{wp.title}</p>
-                      <div className="flex items-center gap-3 text-xs text-[#666]">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Download className="h-3 w-3" />
                           {wp.downloadCount}
@@ -170,33 +154,33 @@ export default function AdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="mt-6">
+        <Card className="mt-6 rounded-2xl border-border bg-card">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Link href="/admin/wallpapers">
-                <div className="p-4 rounded-lg border border-[#222] hover:border-[#D4A843]/30 hover:bg-[#111] transition-all text-center">
-                  <Image className="h-6 w-6 text-[#D4A843] mx-auto mb-2" />
+                <div className="p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-surface-hover transition-all text-center">
+                  <Image className="h-6 w-6 text-primary mx-auto mb-2" />
                   <p className="text-sm font-medium">Wallpapers</p>
                 </div>
               </Link>
               <Link href="/admin/users">
-                <div className="p-4 rounded-lg border border-[#222] hover:border-[#D4A843]/30 hover:bg-[#111] transition-all text-center">
-                  <Users className="h-6 w-6 text-[#D4A843] mx-auto mb-2" />
+                <div className="p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-surface-hover transition-all text-center">
+                  <Users className="h-6 w-6 text-primary mx-auto mb-2" />
                   <p className="text-sm font-medium">Users</p>
                 </div>
               </Link>
               <Link href="/admin/requests">
-                <div className="p-4 rounded-lg border border-[#222] hover:border-[#D4A843]/30 hover:bg-[#111] transition-all text-center">
-                  <MessageSquare className="h-6 w-6 text-[#D4A843] mx-auto mb-2" />
+                <div className="p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-surface-hover transition-all text-center">
+                  <MessageSquare className="h-6 w-6 text-primary mx-auto mb-2" />
                   <p className="text-sm font-medium">Requests</p>
                 </div>
               </Link>
               <Link href="/admin/reports">
-                <div className="p-4 rounded-lg border border-[#222] hover:border-[#D4A843]/30 hover:bg-[#111] transition-all text-center">
-                  <AlertTriangle className="h-6 w-6 text-[#D4A843] mx-auto mb-2" />
+                <div className="p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-surface-hover transition-all text-center">
+                  <AlertTriangle className="h-6 w-6 text-primary mx-auto mb-2" />
                   <p className="text-sm font-medium">Reports</p>
                 </div>
               </Link>

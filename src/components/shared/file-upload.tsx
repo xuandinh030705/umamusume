@@ -137,7 +137,7 @@ export function FileUpload({
       />
 
       {preview ? (
-        <div className="relative rounded-xl border border-[#2a2a2a] bg-[#161616] overflow-hidden">
+        <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
           {/* Preview */}
           <div className="relative aspect-video">
             {uploadedResult?.format === "gif" ||
@@ -160,8 +160,8 @@ export function FileUpload({
             {isUploading && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                 <div className="text-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#D4A843] mx-auto mb-2" />
-                  <p className="text-sm text-[#999]">{uploadProgress}%</p>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">{uploadProgress}%</p>
                 </div>
               </div>
             )}
@@ -169,17 +169,17 @@ export function FileUpload({
             {/* Success overlay */}
             {uploadedResult && !isUploading && (
               <div className="absolute top-3 right-3">
-                <div className="bg-green-500/20 border border-green-500/50 rounded-full p-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                <div className="bg-success/20 border border-success/50 rounded-full p-2">
+                  <Check className="h-4 w-4 text-success" />
                 </div>
               </div>
             )}
           </div>
 
           {/* File info */}
-          <div className="p-3 border-t border-[#2a2a2a]">
+          <div className="p-3 border-t border-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-[#666]">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {uploadedResult?.format === "gif" ||
                 uploadedResult?.format === "mp4" ? (
                   <Video className="h-4 w-4" />
@@ -194,9 +194,9 @@ export function FileUpload({
               </div>
               <button
                 onClick={reset}
-                className="p-1 hover:bg-[#222] rounded-lg transition-colors"
+                className="p-1 hover:bg-surface-hover rounded-xl transition-colors"
               >
-                <X className="h-4 w-4 text-[#666]" />
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
           </div>
@@ -208,23 +208,23 @@ export function FileUpload({
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           className={cn(
-            "relative rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-all duration-300",
+            "relative rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all duration-300",
             isDragging
-              ? "border-[#D4A843] bg-[#D4A843]/5"
-              : "border-[#2a2a2a] bg-[#161616] hover:border-[#D4A843]/50 hover:bg-[#1a1a1a]"
+              ? "border-primary bg-primary/5"
+              : "border-border bg-card hover:border-primary/50 hover:bg-card-hover"
           )}
         >
           <Upload
             className={cn(
               "h-10 w-10 mx-auto mb-4 transition-colors",
-              isDragging ? "text-[#D4A843]" : "text-[#444]"
+              isDragging ? "text-primary" : "text-muted"
             )}
           />
-          <p className="text-sm text-[#666] mb-1">
+          <p className="text-sm text-muted-foreground mb-1">
             Drag & drop your file here, or{" "}
-            <span className="text-[#D4A843]">browse</span>
+            <span className="text-primary">browse</span>
           </p>
-          <p className="text-xs text-[#444]">
+          <p className="text-xs text-muted">
             Supports: JPEG, PNG, GIF, WebP, MP4, WEBM (Max {maxSize}MB)
           </p>
         </div>

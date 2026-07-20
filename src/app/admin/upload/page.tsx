@@ -125,7 +125,12 @@ export default function AdminUploadPage() {
           previewUrl: uploadResult.previewUrl,
           resolution,
           deviceType,
-          format: uploadResult.format.toUpperCase().replace("JPEG", "IMAGE").replace("PNG", "IMAGE").replace("WEBP", "IMAGE"),
+          format: (() => {
+            const f = uploadResult.format.toLowerCase();
+            if (f === "gif") return "GIF";
+            if (["mp4", "webm", "mov", "avi"].includes(f)) return "VIDEO";
+            return "IMAGE";
+          })(),
           isPremium,
           tags: selectedTags,
         }),
@@ -156,7 +161,7 @@ export default function AdminUploadPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D4A843]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -168,7 +173,7 @@ export default function AdminUploadPage() {
         <div className="flex items-center gap-4 mb-8">
           <Link
             href="/admin"
-            className="p-2 hover:bg-[#222] rounded-lg transition-colors"
+            className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -176,39 +181,39 @@ export default function AdminUploadPage() {
             <h1 className="text-3xl font-bold">
               <span className="gold-text">Upload Wallpaper</span>
             </h1>
-            <p className="text-sm text-[#666] mt-1">Add new wallpaper to the library</p>
+            <p className="text-sm text-muted-foreground mt-1">Add new wallpaper to the library</p>
           </div>
         </div>
 
         {/* Success message */}
         {success && (
-          <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center gap-3">
-            <Check className="h-5 w-5 text-green-500" />
+          <div className="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 flex items-center gap-3">
+            <Check className="h-5 w-5 text-success" />
             <div>
-              <p className="text-green-400 font-medium">Wallpaper uploaded successfully!</p>
-              <p className="text-sm text-green-400/70 mt-1">
+              <p className="text-success font-medium">Wallpaper uploaded successfully!</p>
+              <p className="text-sm text-success/70 mt-1">
                 It will be reviewed and published shortly.
               </p>
             </div>
             <button
               onClick={() => setSuccess(false)}
-              className="ml-auto p-1 hover:bg-green-500/20 rounded"
+              className="ml-auto p-1 hover:bg-success/20 rounded-lg"
             >
-              <X className="h-4 w-4 text-green-400" />
+              <X className="h-4 w-4 text-success" />
             </button>
           </div>
         )}
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-3">
-            <X className="h-5 w-5 text-red-500" />
-            <p className="text-red-400">{error}</p>
+          <div className="mb-6 p-4 rounded-2xl bg-destructive/10 border border-destructive/30 flex items-center gap-3">
+            <X className="h-5 w-5 text-destructive" />
+            <p className="text-destructive">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="ml-auto p-1 hover:bg-red-500/20 rounded"
+              className="ml-auto p-1 hover:bg-destructive/20 rounded-lg"
             >
-              <X className="h-4 w-4 text-red-400" />
+              <X className="h-4 w-4 text-destructive" />
             </button>
           </div>
         )}
@@ -216,9 +221,9 @@ export default function AdminUploadPage() {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left: Upload & Preview */}
           <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-[#161616] border border-[#2a2a2a]">
+            <div className="p-6 rounded-2xl bg-card border border-border">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Upload className="h-5 w-5 text-[#D4A843]" />
+                <Upload className="h-5 w-5 text-primary" />
                 Upload File
               </h2>
               <FileUpload
@@ -230,27 +235,27 @@ export default function AdminUploadPage() {
 
             {/* Upload result info */}
             {uploadResult && (
-              <div className="p-4 rounded-xl bg-[#161616] border border-[#2a2a2a]">
-                <h3 className="text-sm font-medium mb-3 text-[#666]">Upload Details</h3>
+              <div className="p-4 rounded-2xl bg-card border border-border">
+                <h3 className="text-sm font-medium mb-3 text-muted-foreground">Upload Details</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-[#444]">Resolution:</span>
-                    <span className="ml-2 text-white">
+                    <span className="text-muted">Resolution:</span>
+                    <span className="ml-2 text-foreground">
                       {uploadResult.width}x{uploadResult.height}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#444]">Format:</span>
-                    <span className="ml-2 text-white uppercase">{uploadResult.format}</span>
+                    <span className="text-muted">Format:</span>
+                    <span className="ml-2 text-foreground uppercase">{uploadResult.format}</span>
                   </div>
                   <div>
-                    <span className="text-[#444]">Size:</span>
-                    <span className="ml-2 text-white">
+                    <span className="text-muted">Size:</span>
+                    <span className="ml-2 text-foreground">
                       {(uploadResult.bytes / 1024 / 1024).toFixed(2)} MB
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#444]">Detected:</span>
+                    <span className="text-muted">Detected:</span>
                     <Badge variant="default" className="ml-2">
                       {deviceType}
                     </Badge>
@@ -262,39 +267,39 @@ export default function AdminUploadPage() {
 
           {/* Right: Form */}
           <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-[#161616] border border-[#2a2a2a] space-y-4">
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
               <h2 className="text-lg font-semibold mb-4">Wallpaper Details</h2>
 
               {/* Title */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Title *</label>
+                <label className="block text-sm text-muted-foreground mb-2">Title *</label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Special Week - Victory Run"
-                  className="bg-[#0a0a0a] border-[#2a2a2a]"
+                  className="bg-background border-border"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Description</label>
+                <label className="block text-sm text-muted-foreground mb-2">Description</label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief description of the wallpaper..."
                   rows={3}
-                  className="bg-[#0a0a0a] border-[#2a2a2a]"
+                  className="bg-background border-border"
                 />
               </div>
 
               {/* Character */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Character *</label>
+                <label className="block text-sm text-muted-foreground mb-2">Character *</label>
                 <select
                   value={characterId}
                   onChange={(e) => setCharacterId(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-[#D4A843]"
+                  className="w-full px-4 py-2 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary"
                 >
                   <option value="">Select character...</option>
                   {characters.map((char) => (
@@ -307,16 +312,16 @@ export default function AdminUploadPage() {
 
               {/* Device Type */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Device Type</label>
+                <label className="block text-sm text-muted-foreground mb-2">Device Type</label>
                 <div className="flex gap-3">
                   {["PHONE", "TABLET", "PC"].map((type) => (
                     <button
                       key={type}
                       onClick={() => setDeviceType(type)}
-                      className={`flex-1 py-2 px-4 rounded-lg border text-sm font-medium transition-colors ${
+                      className={`flex-1 py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
                         deviceType === type
-                          ? "bg-[#D4A843]/10 border-[#D4A843] text-[#D4A843]"
-                          : "bg-[#0a0a0a] border-[#2a2a2a] text-[#666] hover:border-[#444]"
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-background border-border text-muted-foreground hover:border-border-strong"
                       }`}
                     >
                       {type}
@@ -327,19 +332,19 @@ export default function AdminUploadPage() {
 
               {/* Resolution */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Resolution</label>
+                <label className="block text-sm text-muted-foreground mb-2">Resolution</label>
                 <Input
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
                   placeholder="Auto-detected from upload"
-                  className="bg-[#0a0a0a] border-[#2a2a2a]"
+                  className="bg-background border-border"
                   readOnly={!!uploadResult}
                 />
               </div>
 
               {/* Tags */}
               <div>
-                <label className="block text-sm text-[#666] mb-2">Tags</label>
+                <label className="block text-sm text-muted-foreground mb-2">Tags</label>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
                     <button
@@ -347,8 +352,8 @@ export default function AdminUploadPage() {
                       onClick={() => toggleTag(tag.id)}
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                         selectedTags.includes(tag.id)
-                          ? "bg-[#D4A843]/20 border border-[#D4A843] text-[#D4A843]"
-                          : "bg-[#0a0a0a] border border-[#2a2a2a] text-[#666] hover:border-[#444]"
+                          ? "bg-primary/20 border border-primary text-primary"
+                          : "bg-background border border-border text-muted-foreground hover:border-border-strong"
                       }`}
                     >
                       {tag.name}
@@ -358,17 +363,17 @@ export default function AdminUploadPage() {
               </div>
 
               {/* Premium toggle */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#0a0a0a] border border-[#2a2a2a]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-background border border-border">
                 <div>
                   <p className="text-sm font-medium">Premium Content</p>
-                  <p className="text-xs text-[#666]">
+                  <p className="text-xs text-muted-foreground">
                     Only premium users can download this wallpaper
                   </p>
                 </div>
                 <button
                   onClick={() => setIsPremium(!isPremium)}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    isPremium ? "bg-[#D4A843]" : "bg-[#333]"
+                    isPremium ? "bg-primary" : "bg-muted"
                   }`}
                 >
                   <div

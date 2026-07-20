@@ -11,29 +11,43 @@ export async function POST(
 
   const userId = authResult.session.user?.id;
   if (!userId) {
-    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   try {
     const { id } = await params;
+    const character = await prisma.character.findFirst({
+      where: { OR: [{ id }, { slug: id }] },
+    });
 
-    const existing = await prisma.follow.findUnique({
-      where: { userId_characterId: { userId, characterId: id } },
+    if (!character) {
+      return NextResponse.json(
+        { success: false, message: "Character not found" },
+        { status: 404 }
+      );
+    }
+
+    const existing = await prisma.follow.findFirst({
+      where: { userId, characterId: character.id },
     });
 
     if (existing) {
       await prisma.follow.delete({ where: { id: existing.id } });
       return NextResponse.json({
         success: true,
-        message: "Unfollowed",
         data: { following: false },
       });
     }
 
-    await prisma.follow.create({ data: { userId, characterId: id } });
+    await prisma.follow.create({
+      data: { userId, characterId: character.id },
+    });
+
     return NextResponse.json({
       success: true,
-      message: "Following",
       data: { following: true },
     });
   } catch (error) {
