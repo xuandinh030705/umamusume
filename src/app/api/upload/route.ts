@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, resolveUser } from "@/lib/api-auth";
 import { uploadImage, generateThumbnailUrl, generatePreviewUrl } from "@/lib/cloudinary";
 import prisma from "@/lib/prisma";
+import { uploadLimiter, createRateLimitResponse } from "@/lib/rate-limit";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const DAILY_UPLOAD_LIMIT = 10;
 
 export async function POST(request: NextRequest) {
+  const rl = uploadLimiter(request);
+  if (!rl.allowed) return createRateLimitResponse(rl.resetTime);
+
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth, resolveUser } from "@/lib/api-auth";
 import { commentSchema } from "@/lib/validations";
+import { commentLimiter, createRateLimitResponse } from "@/lib/rate-limit";
 
 function sanitizeHtml(str: string): string {
   return str
@@ -43,6 +44,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rl = commentLimiter(request);
+  if (!rl.allowed) return createRateLimitResponse(rl.resetTime);
+
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 

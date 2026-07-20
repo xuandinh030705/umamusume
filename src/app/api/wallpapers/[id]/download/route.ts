@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
+import { downloadLimiter, createRateLimitResponse } from "@/lib/rate-limit";
 
 const DAILY_DOWNLOAD_LIMIT = 20;
 const DAILY_DOWNLOAD_LIMIT_PREMIUM = 50;
@@ -9,6 +10,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rl = downloadLimiter(request);
+  if (!rl.allowed) return createRateLimitResponse(rl.resetTime);
+
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 

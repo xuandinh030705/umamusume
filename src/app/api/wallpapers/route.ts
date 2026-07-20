@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth, requireAdmin, resolveUser } from "@/lib/api-auth";
+import { wallpaperSchema } from "@/lib/validations";
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,17 +66,19 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { title, description, characterId, fileUrl, thumbnailUrl, previewUrl, resolution, deviceType, format, isPremium, tags } = body;
-    if (!title || !fileUrl || !deviceType || !format) {
-      return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 });
+
+    const parsed = wallpaperSchema.safeParse({
+      title, description, characterId, resolution, deviceType, format, isPremium: isPremium || false, tags,
+    });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, message: parsed.error.issues[0]?.message || "Invalid input" },
+        { status: 400 }
+      );
     }
 
-    const validDeviceTypes = ["PHONE", "TABLET", "PC"];
-    const validFormats = ["IMAGE", "GIF", "VIDEO"];
-    if (!validDeviceTypes.includes(deviceType)) {
-      return NextResponse.json({ success: false, message: "Invalid deviceType" }, { status: 400 });
-    }
-    if (!validFormats.includes(format)) {
-      return NextResponse.json({ success: false, message: "Invalid format" }, { status: 400 });
+    if (!fileUrl) {
+      return NextResponse.json({ success: false, message: "Missing required field: fileUrl" }, { status: 400 });
     }
 
     const wallpaper = await prisma.wallpaper.create({

@@ -1,71 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
-
-const MAX_NAME_LENGTH = 50;
-const MAX_EMAIL_LENGTH = 254;
-const MAX_PASSWORD_LENGTH = 128;
-const MIN_PASSWORD_LENGTH = 8;
-
-function validatePassword(password: string): string | null {
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
-  }
-  if (password.length > MAX_PASSWORD_LENGTH) {
-    return `Password must be no more than ${MAX_PASSWORD_LENGTH} characters`;
-  }
-  if (!/[A-Z]/.test(password)) {
-    return "Password must contain at least one uppercase letter";
-  }
-  if (!/[a-z]/.test(password)) {
-    return "Password must contain at least one lowercase letter";
-  }
-  if (!/[0-9]/.test(password)) {
-    return "Password must contain at least one number";
-  }
-  return null;
-}
-
-function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
+import { registerSchema } from "@/lib/validations";
+import { authLimiter, createRateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
-  try {
-    const { name, email, password } = await request.json();
+  const rl = authLimiter(request);
+  if (!rl.allowed) return createRateLimitResponse(rl.resetTime);
 
-    if (!name || !email || !password) {
+  try {
+    const body = await request.json();
+
+    const parsed = registerSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        { success: false, message: parsed.error.issues[0]?.message || "Invalid input" },
         { status: 400 }
       );
     }
 
+    const { name, email, password } = parsed.data;
     const trimmedName = name.trim();
     const trimmedEmail = email.trim().toLowerCase();
-
-    if (trimmedName.length < 2 || trimmedName.length > MAX_NAME_LENGTH) {
-      return NextResponse.json(
-        { success: false, message: `Name must be 2-${MAX_NAME_LENGTH} characters` },
-        { status: 400 }
-      );
-    }
-
-    if (trimmedEmail.length > MAX_EMAIL_LENGTH || !validateEmail(trimmedEmail)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid email address" },
-        { status: 400 }
-      );
-    }
-
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      return NextResponse.json(
-        { success: false, message: passwordError },
-        { status: 400 }
-      );
-    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email: trimmedEmail },
@@ -91,6 +47,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Register error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

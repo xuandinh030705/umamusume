@@ -11,13 +11,18 @@ function createPrismaClient() {
   const rawUrl = process.env.DATABASE_URL;
   if (!rawUrl) throw new Error("DATABASE_URL is not set");
 
-  const pool = globalForPrisma.pool || new Pool({
-    connectionString: rawUrl,
-    ssl: { rejectUnauthorized: false },
-    max: 2,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000,
-  });
+  // Strip sslmode from URL so Pool's ssl config is authoritative
+  const url = rawUrl.replace(/[?&]sslmode=[^&]*/g, "").replace(/\?$/, "");
+
+  const pool =
+    globalForPrisma.pool ||
+    new Pool({
+      connectionString: url,
+      ssl: { rejectUnauthorized: false },
+      max: 3,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 10000,
+    });
 
   if (!globalForPrisma.pool) {
     globalForPrisma.pool = pool;
