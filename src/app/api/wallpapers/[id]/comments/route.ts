@@ -23,9 +23,11 @@ export async function GET(
       where: { wallpaperId: id, parentCommentId: null },
       include: {
         user: { select: { id: true, name: true, image: true, role: true } },
+        _count: { select: { commentLikes: true } },
         replies: {
           include: {
             user: { select: { id: true, name: true, image: true, role: true } },
+            _count: { select: { commentLikes: true } },
           },
           orderBy: { createdAt: "asc" },
         },

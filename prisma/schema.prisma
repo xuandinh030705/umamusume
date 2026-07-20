@@ -134,6 +134,7 @@ model User {
   wallpapers        Wallpaper[]
   comments          Comment[]
   likes             Like[]
+  commentLikes      CommentLike[]
   collections       Collection[]
   characterRequests CharacterRequest[]
   upvotes           Upvote[]
@@ -234,10 +235,11 @@ model Comment {
   wallpaperId     String   @map("wallpaperId")
   parentCommentId String?  @map("parentCommentId")
 
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wallpaper     Wallpaper @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
-  parentComment Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
-  replies       Comment[] @relation("CommentReplies")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallpaper     Wallpaper     @relation(fields: [wallpaperId], references: [id], onDelete: Cascade)
+  parentComment Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies       Comment[]     @relation("CommentReplies")
+  commentLikes  CommentLike[]
 
   @@index([userId])
   @@index([wallpaperId])
@@ -258,6 +260,21 @@ model Like {
   @@index([userId])
   @@index([wallpaperId])
   @@map("Like")
+}
+
+model CommentLike {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @map("userId")
+  commentId String   @map("commentId")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([commentId])
+  @@map("CommentLike")
 }
 
 // ─── Collections ─────────────────────────────────────────────────────────────
@@ -400,4 +417,15 @@ model Notification {
   @@index([userId, isRead])
   @@index([isRead])
   @@map("Notification")
+}
+
+// ─── Site Settings ──────────────────────────────────────────────────────────
+
+model SiteSetting {
+  id        String   @id @default(cuid()) @map("_id")
+  key       String   @unique @map("key")
+  value     String   @map("value")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  @@map("SiteSetting")
 }

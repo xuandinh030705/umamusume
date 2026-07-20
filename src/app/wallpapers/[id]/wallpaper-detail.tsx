@@ -37,6 +37,8 @@ interface CommentData {
   content: string
   createdAt: string
   user: { id: string; name: string; image?: string; role: string }
+  likeCount?: number
+  likedByMe?: boolean
   replies?: CommentData[]
 }
 
@@ -95,7 +97,15 @@ export default function WallpaperDetail({ wallpaperId }: { wallpaperId: string }
       const res = await fetch(`/api/wallpapers/${wallpaperId}/comments`)
       const data = await res.json()
       if (data.success) {
-        setComments(data.data)
+        const mapped = data.data.map((c: CommentData & { _count?: { commentLikes?: number } }) => ({
+          ...c,
+          likeCount: c._count?.commentLikes ?? 0,
+          replies: c.replies?.map((r: CommentData & { _count?: { commentLikes?: number } }) => ({
+            ...r,
+            likeCount: r._count?.commentLikes ?? 0,
+          })),
+        }))
+        setComments(mapped)
       }
     } catch {
       console.error("Failed to fetch comments")
@@ -246,8 +256,17 @@ export default function WallpaperDetail({ wallpaperId }: { wallpaperId: string }
       router.push(`/auth/login?callbackUrl=/wallpapers/${wallpaperId}`)
       return
     }
-    // Comment likes are not yet supported via API — placeholder for future
-    addToast({ type: "info", title: "Comment likes coming soon" })
+    try {
+      const res = await fetch(`/api/comments/${commentId}/like`, {
+        method: "POST",
+      })
+      const data = await res.json()
+      if (data.success) {
+        fetchComments()
+      }
+    } catch {
+      addToast({ type: "error", title: "Failed to like comment" })
+    }
   }
 
   if (loading) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowLeft, Settings, Loader2, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -18,13 +18,48 @@ export default function AdminSettingsPage() {
   const [maintenanceMode, setMaintenanceMode] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          const s = data.data as { key: string; value: string }[]
+          for (const setting of s) {
+            if (setting.key === "siteName") setSiteName(setting.value)
+            else if (setting.key === "siteDescription") setSiteDescription(setting.value)
+            else if (setting.key === "maxUploadSize") setMaxUploadSize(setting.value)
+            else if (setting.key === "autoApprove") setAutoApprove(setting.value === "true")
+            else if (setting.key === "maintenanceMode") setMaintenanceMode(setting.value === "true")
+          }
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   async function handleSave() {
     setSaving(true)
     try {
-      await new Promise((r) => setTimeout(r, 1000))
-      addToast({ type: "success", title: "Settings saved!" })
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          settings: {
+            siteName,
+            siteDescription,
+            maxUploadSize,
+            autoApprove: String(autoApprove),
+            maintenanceMode: String(maintenanceMode),
+          },
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        addToast({ type: "success", title: "Settings saved!" })
+      } else {
+        addToast({ type: "error", title: data.message || "Failed to save" })
+      }
     } catch {
-      addToast({ type: "error", title: "Failed to save" })
+      addToast({ type: "error", title: "Failed to save settings" })
     } finally {
       setSaving(false)
     }

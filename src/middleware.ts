@@ -39,6 +39,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const nonceArray = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(nonceArray);
+  const nonce = btoa(String.fromCharCode(...nonceArray));
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'nonce-" + nonce + "' https://js.stripe.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://images.unsplash.com",
+    "font-src 'self'",
+    "connect-src 'self' https://res.cloudinary.com https://api.cloudinary.com",
+    "frame-src 'self' https://js.stripe.com",
+  ].join("; ");
+
   const sessionToken =
     request.cookies.get("authjs.session-token")?.value ||
     request.cookies.get("__Secure-authjs.session-token")?.value;
@@ -49,52 +62,85 @@ export function middleware(request: NextRequest) {
     const { allowed } = checkApiRateLimit(rateLimitKey, 60000, 100);
 
     if (!allowed) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { success: false, message: "Too many requests" },
         { status: 429 }
       );
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
   if (pathname.startsWith("/admin")) {
     if (!sessionToken) {
       const loginUrl = new URL("/auth/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
   if (pathname.startsWith("/profile")) {
     if (!sessionToken) {
       const loginUrl = new URL("/auth/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
   if (pathname.startsWith("/collections")) {
     if (!sessionToken) {
       const loginUrl = new URL("/auth/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
   if (pathname.startsWith("/notifications")) {
     if (!sessionToken) {
       const loginUrl = new URL("/auth/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("x-nonce", nonce);
+  return response;
 }
 
 export const config = {

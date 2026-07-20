@@ -22,6 +22,7 @@ interface Comment {
   user: CommentUser
   parentCommentId?: string | null
   likeCount?: number
+  likedByMe?: boolean
   replies?: Comment[]
 }
 
@@ -75,7 +76,7 @@ function CommentSection({ comments, currentUserId, onSubmit, onDelete, onLike, c
                 onClick={() => onLike(comment.id)}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
-                <Heart className="h-3.5 w-3.5" />
+                <Heart className={cn("h-3.5 w-3.5", comment.likedByMe && "fill-red-500 text-red-500")} />
                 {comment.likeCount != null && comment.likeCount > 0 && comment.likeCount}
               </button>
               {!isReply && (
