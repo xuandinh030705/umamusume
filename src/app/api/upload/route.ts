@@ -1,33 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, resolveUser } from "@/lib/api-auth";
 import { uploadImage, generateThumbnailUrl, generatePreviewUrl } from "@/lib/cloudinary";
 import prisma from "@/lib/prisma";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const ALLOWED_TYPES = [
-  "image/jpeg", "image/png", "image/gif", "image/webp",
-  "video/mp4", "video/webm",
-];
 const DAILY_UPLOAD_LIMIT = 10;
 
 export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = (authResult.session.user as { id?: string })?.id;
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, message: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
   try {
+    const user = await resolveUser(authResult.session);
+    if (!user) {
+      console.error("Upload auth failed: user not found", { id: authResult.session.user?.id, email: authResult.session.user?.email });
+      return NextResponse.json({ success: false, message: "User not found. Please log out and log back in." }, { status: 401 });
+    }
+
+    if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
+      return NextResponse.json({ success: false, message: "Only admins and moderators can upload" }, { status: 403 });
+    }
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const userUploadsToday = await prisma.wallpaper.count({
-      where: { uploaderId: userId, createdAt: { gte: todayStart } },
+      where: { uploaderId: user.id, createdAt: { gte: todayStart } },
     });
 
     if (userUploadsToday >= DAILY_UPLOAD_LIMIT) {
@@ -42,17 +40,11 @@ export async function POST(request: NextRequest) {
     const type = formData.get("type") as string;
 
     if (!file) {
-      return NextResponse.json(
-        { success: false, message: "No file provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: "No file provided" }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { success: false, message: "File too large. Maximum size is 50MB" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: "File too large. Maximum size is 50MB" }, { status: 400 });
     }
 
     const isImage = file.type.startsWith("image/");
@@ -106,18 +98,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    console.error("Upload error full:", JSON.stringify(error, Object.getOwnPropertyNames(error as object)));
-    let detail = "Unknown error";
-    if (error instanceof Error) {
-      detail = error.message;
-      if ((error as any).http_code) detail += ` (HTTP ${(error as any).http_code})`;
-      if ((error as any).message?.includes("Must supply")) detail = "Cloudinary credentials missing or invalid. Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in .env";
-    } else if (typeof error === "string") {
-      detail = error;
-    }
-    return NextResponse.json(
-      { success: false, message: detail },
-      { status: 500 }
-    );
+    console.error("Upload error:", error instanceof Error ? error.message : error);
+    return NextResponse.json({ success: false, message: "Upload failed. Please try again." }, { status: 500 });
   }
 }

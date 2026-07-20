@@ -1,22 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, resolveUser } from "@/lib/api-auth";
 
 export async function GET() {
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = authResult.session.user?.id;
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, message: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
   try {
+    const user = await resolveUser(authResult.session);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 401 });
+    }
+
     const likes = await prisma.like.findMany({
-      where: { userId },
+      where: { userId: user.id },
       include: {
         wallpaper: {
           include: {
@@ -29,12 +26,9 @@ export async function GET() {
     });
 
     const wallpapers = likes.map((like) => like.wallpaper);
-
     return NextResponse.json({ success: true, data: wallpapers });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Favorites GET error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

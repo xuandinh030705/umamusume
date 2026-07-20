@@ -64,6 +64,7 @@ export async function GET() {
       },
     });
   } catch (error) {
+    console.error("Admin analytics GET error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

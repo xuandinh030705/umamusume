@@ -28,6 +28,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, message: "Role updated", data: user });
   } catch (error) {
+    console.error("Admin role PATCH error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

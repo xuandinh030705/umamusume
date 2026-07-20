@@ -16,6 +16,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: reports });
   } catch (error) {
+    console.error("Admin reports error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: report });
   } catch (error) {
+    console.error("Admin report status PATCH error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

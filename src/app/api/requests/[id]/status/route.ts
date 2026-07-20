@@ -14,18 +14,12 @@ export async function PATCH(
     const { status } = await request.json();
 
     if (!status) {
-      return NextResponse.json(
-        { success: false, message: "Status is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: "Status is required" }, { status: 400 });
     }
 
     const validStatuses = ["PENDING", "IN_PROGRESS", "DONE", "REJECTED"];
     if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid status" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: "Invalid status" }, { status: 400 });
     }
 
     const request_ = await prisma.characterRequest.update({
@@ -47,9 +41,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: request_ });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Request status PATCH error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

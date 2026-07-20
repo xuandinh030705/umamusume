@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import prisma from "./prisma";
 
 export async function requireAuth() {
   const session = await auth();
@@ -32,6 +33,20 @@ export async function requireModerator() {
   return { session };
 }
 
-export function getUserId(session: { user?: { id?: string } }): string | null {
-  return session?.user?.id || null;
+/**
+ * Resolve a DB user from the session, using id first then email fallback.
+ * This fixes the issue where session.user.id may be empty/incorrect.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function resolveUser(session: any) {
+  const sessionUserId = session?.user?.id as string | undefined;
+  const userEmail = session?.user?.email as string | undefined;
+
+  let user = sessionUserId
+    ? await prisma.user.findUnique({ where: { id: sessionUserId } })
+    : null;
+  if (!user && userEmail) {
+    user = await prisma.user.findUnique({ where: { email: userEmail } });
+  }
+  return user;
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, resolveUser } from "@/lib/api-auth";
 
 export async function GET() {
   try {
@@ -13,10 +13,8 @@ export async function GET() {
     });
     return NextResponse.json({ success: true, data: requests });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Requests GET error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -24,42 +22,31 @@ export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = authResult.session.user?.id;
-  if (!userId) {
-    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const user = await resolveUser(authResult.session);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 401 });
+    }
+
     const { characterName, note } = await request.json();
-    if (!characterName) {
-      return NextResponse.json(
-        { success: false, message: "Character name is required" },
-        { status: 400 }
-      );
+    if (!characterName || !characterName.trim()) {
+      return NextResponse.json({ success: false, message: "Character name is required" }, { status: 400 });
     }
 
     const existing = await prisma.characterRequest.findFirst({
-      where: { characterName, userId },
+      where: { characterName: characterName.trim(), userId: user.id },
     });
     if (existing) {
-      return NextResponse.json(
-        { success: false, message: "You already requested this character" },
-        { status: 409 }
-      );
+      return NextResponse.json({ success: false, message: "You already requested this character" }, { status: 409 });
     }
 
     const req = await prisma.characterRequest.create({
-      data: { characterName, note, userId },
+      data: { characterName: characterName.trim(), note, userId: user.id },
       include: { user: { select: { id: true, name: true, image: true } } },
     });
-    return NextResponse.json(
-      { success: true, message: "Request submitted", data: req },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, message: "Request submitted", data: req }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Request POST error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

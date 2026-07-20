@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAuth, requireAdmin } from "@/lib/api-auth";
+import { requireAuth, requireAdmin, resolveUser } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
       data: { wallpapers, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } },
     });
   } catch (error) {
+    console.error("Wallpapers GET error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
@@ -56,28 +57,39 @@ export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = (authResult.session.user as { id?: string })?.id;
-  const userEmail = (authResult.session.user as { email?: string })?.email;
-
-  let user = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
-  if (!user && userEmail) {
-    user = await prisma.user.findUnique({ where: { email: userEmail } });
-  }
-  if (!user) {
-    console.error("Wallpaper upload auth failed:", { userId, userEmail });
-    return NextResponse.json({ success: false, message: "User not found. Please log out and log back in." }, { status: 401 });
-  }
-
   try {
+    const user = await resolveUser(authResult.session);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "User not found. Please log out and log back in." }, { status: 401 });
+    }
+
     const body = await request.json();
     const { title, description, characterId, fileUrl, thumbnailUrl, previewUrl, resolution, deviceType, format, isPremium, tags } = body;
     if (!title || !fileUrl || !deviceType || !format) {
       return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 });
     }
+
+    const validDeviceTypes = ["PHONE", "TABLET", "PC"];
+    const validFormats = ["IMAGE", "GIF", "VIDEO"];
+    if (!validDeviceTypes.includes(deviceType)) {
+      return NextResponse.json({ success: false, message: "Invalid deviceType" }, { status: 400 });
+    }
+    if (!validFormats.includes(format)) {
+      return NextResponse.json({ success: false, message: "Invalid format" }, { status: 400 });
+    }
+
     const wallpaper = await prisma.wallpaper.create({
       data: {
-        title, description, fileUrl, thumbnailUrl, previewUrl, resolution,
-        deviceType, format, isPremium: isPremium || false, wallpaperStatus: "PUBLISHED",
+        title,
+        description,
+        fileUrl,
+        thumbnailUrl,
+        previewUrl,
+        resolution,
+        deviceType,
+        format,
+        isPremium: isPremium || false,
+        wallpaperStatus: "PUBLISHED",
         uploaderId: user.id,
         ...(characterId && { characterId }),
         wallpaperTags: tags && tags.length > 0 ? { create: tags.map((tagId: string) => ({ tagId })) } : undefined,
@@ -86,7 +98,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ success: true, message: "Wallpaper uploaded", data: wallpaper }, { status: 201 });
   } catch (error) {
-    console.error("Wallpaper create error:", error instanceof Error ? error.message : error);
+    console.error("Wallpaper create error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

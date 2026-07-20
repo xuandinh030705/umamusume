@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, resolveUser } from "@/lib/api-auth";
 
 export async function GET(
   request: NextRequest,
@@ -19,10 +19,7 @@ export async function GET(
     });
 
     if (!wallpaper) {
-      return NextResponse.json(
-        { success: false, message: "Wallpaper not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, message: "Wallpaper not found" }, { status: 404 });
     }
 
     await prisma.wallpaper.update({
@@ -32,10 +29,8 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: wallpaper });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Wallpaper GET error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -46,34 +41,28 @@ export async function DELETE(
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = authResult.session.user?.id;
-  const userRole = (authResult.session.user as { role?: string })?.role;
-
   try {
+    const user = await resolveUser(authResult.session);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 401 });
+    }
+
     const { id } = await params;
     const wallpaper = await prisma.wallpaper.findUnique({ where: { id } });
 
     if (!wallpaper) {
-      return NextResponse.json(
-        { success: false, message: "Not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
     }
 
-    if (wallpaper.uploaderId !== userId && userRole !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, message: "Forbidden" },
-        { status: 403 }
-      );
+    if (wallpaper.uploaderId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
     }
 
     await prisma.wallpaper.delete({ where: { id } });
     return NextResponse.json({ success: true, message: "Wallpaper deleted" });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Wallpaper DELETE error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -86,10 +75,7 @@ export async function PATCH(
 
   const userRole = (authResult.session.user as { role?: string })?.role;
   if (userRole !== "ADMIN" && userRole !== "MODERATOR") {
-    return NextResponse.json(
-      { success: false, message: "Forbidden" },
-      { status: 403 }
-    );
+    return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -107,9 +93,7 @@ export async function PATCH(
     });
     return NextResponse.json({ success: true, data: wallpaper });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Wallpaper PATCH error:", error);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }

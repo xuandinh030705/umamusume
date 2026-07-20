@@ -17,6 +17,7 @@ export async function GET() {
     });
     return NextResponse.json({ success: true, data: comments });
   } catch (error) {
+    console.error("Admin comments GET error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

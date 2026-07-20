@@ -15,6 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!character) return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
     return NextResponse.json({ success: true, data: character });
   } catch (error) {
+    console.error("Character GET error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
@@ -46,6 +47,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     return NextResponse.json({ success: true, message: "Character updated", data: character });
   } catch (error) {
+    console.error("Character PATCH error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
@@ -62,6 +64,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     await prisma.character.delete({ where: { id } });
     return NextResponse.json({ success: true, message: "Character deleted" });
   } catch (error) {
+    console.error("Character DELETE error:", error);
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
