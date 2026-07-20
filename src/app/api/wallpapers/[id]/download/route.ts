@@ -12,13 +12,24 @@ export async function POST(
   const authResult = await requireAuth();
   if ("error" in authResult) return authResult.error;
 
-  const userId = authResult.session.user?.id;
-  if (!userId) {
+  const sessionUserId = authResult.session.user?.id;
+  const userEmail = authResult.session.user?.email;
+
+  let user = sessionUserId
+    ? await prisma.user.findUnique({ where: { id: sessionUserId } })
+    : null;
+  if (!user && userEmail) {
+    user = await prisma.user.findUnique({ where: { email: userEmail } });
+  }
+  if (!user) {
+    console.error("Download auth failed:", { sessionUserId, userEmail });
     return NextResponse.json(
-      { success: false, message: "Unauthorized" },
+      { success: false, message: "User not found. Please log out and log back in." },
       { status: 401 }
     );
   }
+
+  const userId = user.id;
 
   try {
     const { id } = await params;
@@ -38,14 +49,11 @@ export async function POST(
       );
     }
 
-    if (wallpaper.isPremium) {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (!user?.isPremium) {
-        return NextResponse.json(
-          { success: false, message: "Premium subscription required" },
-          { status: 403 }
-        );
-      }
+    if (wallpaper.isPremium && !user.isPremium) {
+      return NextResponse.json(
+        { success: false, message: "Premium subscription required" },
+        { status: 403 }
+      );
     }
 
     const todayStart = new Date();
@@ -58,8 +66,7 @@ export async function POST(
       },
     });
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    const limit = user?.isPremium ? DAILY_DOWNLOAD_LIMIT_PREMIUM : DAILY_DOWNLOAD_LIMIT;
+    const limit = user.isPremium ? DAILY_DOWNLOAD_LIMIT_PREMIUM : DAILY_DOWNLOAD_LIMIT;
 
     if (downloadsToday >= limit) {
       return NextResponse.json(
@@ -94,6 +101,7 @@ export async function POST(
       data: { fileUrl: wallpaper.fileUrl },
     });
   } catch (error) {
+    console.error("Download error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
